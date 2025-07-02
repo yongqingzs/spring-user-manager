@@ -1,0 +1,111 @@
+package com.userdept.system.service;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.userdept.system.dto.DepartmentDTO;
+import com.userdept.system.entity.Department;
+import com.userdept.system.entity.User;
+import com.userdept.system.entity.UserDepartment;
+
+import java.util.List;
+
+/**
+ * 部门服务接口
+ */
+public interface DepartmentService extends IService<Department> {
+
+    /**
+     * 分页查询部门列表
+     * 
+     * @param page 当前页
+     * @param perPage 每页数量
+     * @param search 查询条件
+     * @return 分页结果
+     */
+    Page<Department> getDepartmentPage(int page, int perPage, String search);
+    
+    /**
+     * 获取部门树形结构
+     * 
+     * @return 树形结构的部门列表
+     */
+    List<Department> getDepartmentTree();
+    
+    /**
+     * 通过编号获取部门
+     * 
+     * @param code 部门编号
+     * @return 部门对象
+     */
+    Department getDepartmentByCode(String code);
+    
+    /**
+     * 创建部门
+     * 
+     * @param departmentDTO 部门数据
+     * @param creator 创建人
+     * @return 创建的部门ID
+     */
+    Long createDepartment(DepartmentDTO departmentDTO, String creator);
+    
+    /**
+     * 更新部门
+     * 
+     * @param deptId 部门ID
+     * @param departmentDTO 部门数据
+     * @param modifier 修改人
+     * @return 是否成功
+     */
+    boolean updateDepartment(Long deptId, DepartmentDTO departmentDTO, String modifier);
+    
+    /**
+     * 删除部门
+     * 
+     * @param deptId 部门ID
+     * @return 是否成功
+     */
+    boolean deleteDepartment(Long deptId);
+    
+    /**
+     * 获取指定部门中的用户
+     * 
+     * @param departmentCode 部门编号
+     * @return 用户列表
+     */
+    List<User> getUsersInDepartment(String departmentCode);
+    
+    /**
+     * 获取指定用户所属的部门
+     * 
+     * @param username 用户名
+     * @return 部门列表
+     */
+    List<Department> getDepartmentsForUser(String username);
+    
+    /**
+     * 分配用户到部门
+     * 
+     * @param username 用户名
+     * @param departmentCode 部门编号
+     * @param creator 创建人
+     * @return 是否成功
+     */
+    boolean assignUserToDepartment(String username, String departmentCode, String creator);
+    
+    /**
+     * 从部门中移除用户
+     * 
+     * @param username 用户名
+     * @param departmentCode 部门编号
+     * @return 是否成功
+     */
+    boolean removeUserFromDepartment(String username, String departmentCode);
+    
+    /**
+     * 获取用户部门关联记录
+     * 
+     * @param username 用户名
+     * @return 关联记录列表
+     */
+    List<UserDepartment> getUserDepartmentRelations(String username);
+}
