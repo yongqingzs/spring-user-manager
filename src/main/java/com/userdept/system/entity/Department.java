@@ -13,7 +13,7 @@ import java.util.List;
  * 部门实体类
  */
 @Data
-@TableName("sys_department")
+@TableName("department")
 public class Department {
     
     @TableId(type = IdType.AUTO)

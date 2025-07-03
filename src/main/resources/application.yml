@@ -6,9 +6,15 @@ spring:
     name: user-dept-system
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:user_dept_system}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:password}
+    # url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:user_dept_system}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    # username: ${MYSQL_USERNAME:root}
+    # password: ${MYSQL_PASSWORD:password}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
   thymeleaf:
     cache: false
     mode: HTML
@@ -28,6 +34,7 @@ mybatis-plus:
     db-config:
       id-type: auto
       field-strategy: not_null
+      table-prefix: ""
 
 system:
   name: ${SYSTEM_NAME:望子成龙小学职工管理系统}

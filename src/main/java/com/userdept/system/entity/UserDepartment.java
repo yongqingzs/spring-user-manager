@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * 用户部门关联实体类
  */
 @Data
-@TableName("sys_user_department")
+@TableName("user_department")
 public class UserDepartment {
     
     @TableId(type = IdType.AUTO)

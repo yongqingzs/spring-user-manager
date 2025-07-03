@@ -18,7 +18,7 @@ import java.util.Collections;
  * 用户实体类
  */
 @Data
-@TableName("sys_user")
+@TableName("user")
 public class User implements UserDetails {
 
     @TableId(type = IdType.AUTO)

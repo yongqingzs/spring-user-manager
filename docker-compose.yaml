@@ -6,10 +6,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/flask_user_app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=flask_user
-      - SPRING_DATASOURCE_PASSWORD=flask_password
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/user_dept_system?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=user_dept
+      - SPRING_DATASOURCE_PASSWORD=user_dept_pwd
       - ADMIN_USERNAME=ggbond
       - ADMIN_PASSWORD=xff123
       - ADMIN_REALNAME=猪猪侠
@@ -18,18 +18,19 @@ services:
       - db
     networks:
       - user-dept-network
-    restart: always
-    # 开发环境使用
-    # volumes:
-    #   - ./target:/app
+    # restart: always
+    volumes:
+      - ./target:/app/target
+      - ./target/user-dept-system-1.0.0.jar:/app/app.jar
+    command: ["java", "-jar", "/app/app.jar"]
 
   db:
     image: mysql:8.0
     environment:
       - MYSQL_ROOT_PASSWORD=root_password
-      - MYSQL_DATABASE=flask_user_app
-      - MYSQL_USER=flask_user
-      - MYSQL_PASSWORD=flask_password
+      - MYSQL_DATABASE=user_dept_system
+      - MYSQL_USER=user_dept
+      - MYSQL_PASSWORD=user_dept_pwd
     ports:
       - "3306:3306"
     volumes:
