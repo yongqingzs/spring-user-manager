@@ -95,16 +95,23 @@ $(document).ready(function() {
             .then(function(response) {
                 // console.log("get /api/departments response:", response);
                 const res = response.data;
-                departments = res.departments;
-                totalPages = Math.ceil(res.total / pageSize);
                 
-                console.log('加载部门数据:', departments);
+                if (res.code === 200 && res.data) {
+                    const pageData = res.data;
+                    departments = pageData.list || [];
+                    totalPages = Math.ceil(pageData.total / pageSize);
+                    
+                    console.log('加载部门数据:', departments);
 
-                renderDepartmentTable(departments);
-                renderPagination(page, totalPages);
-                
-                // 更新记录总数显示
-                $('#totalRecords').text(`共 ${res.total} 条记录`);
+                    renderDepartmentTable(departments);
+                    renderPagination(page, totalPages);
+                    
+                    // 更新记录总数显示
+                    $('#totalRecords').text(`共 ${pageData.total || 0} 条记录`);
+                } else {
+                    console.error('部门API返回错误:', res);
+                    toastr.error(res.message || '加载部门数据失败');
+                }
             })
             .catch(function(error) {
                 console.error('加载部门失败:', error);
@@ -234,7 +241,7 @@ $(document).ready(function() {
         axios.delete(`/api/departments/${deptId}`)
             .then(function(response) {
                 const res = response.data;
-                if (res.success) {
+                if (res.code === 200) {
                     toastr.success(res.message || '删除部门成功');
                     
                     // 关闭模态框
@@ -393,7 +400,7 @@ $(document).ready(function() {
         axios.delete(`/api/users/${username}/departments/${deptCode}`)
             .then(function(response) {
                 const res = response.data;
-                if (res.success) {
+                if (res.code === 200) {
                     toastr.success(res.message || '移除用户成功');
                     modal.hide();
                     
@@ -424,7 +431,7 @@ $(document).ready(function() {
         axios.post(`/api/users/${username}/departments/${deptCode}`)
             .then(function(response) {
                 const res = response.data;
-                if (res.success) {
+                if (res.code === 200) {
                     toastr.success(res.message || '添加用户成功');
                     
                     // 清空选择
@@ -453,20 +460,27 @@ $(document).ready(function() {
             params: { tree: true }
         })
             .then(function(response) {
-                const depts = response.data.departments || [];
-                const treeContainer = $('#departmentTree');
-                treeContainer.empty();
+                const res = response.data;
                 
-                if (depts.length === 0) {
-                    treeContainer.html('<div class="text-center py-3">暂无部门数据</div>');
-                } else {
-                    treeContainer.html(buildTreeHtml(depts));
+                if (res.code === 200 && res.data) {
+                    const depts = res.data.list || [];
+                    const treeContainer = $('#departmentTree');
+                    treeContainer.empty();
                     
-                    // 为树节点添加展开/折叠事件
-                    $('.department-tree .caret').click(function() {
-                        $(this).parent().find('.nested').first().toggleClass('active');
-                        $(this).toggleClass('caret-down');
-                    });
+                    if (depts.length === 0) {
+                        treeContainer.html('<div class="text-center py-3">暂无部门数据</div>');
+                    } else {
+                        treeContainer.html(buildTreeHtml(depts));
+                        
+                        // 为树节点添加展开/折叠事件
+                        $('.department-tree .caret').click(function() {
+                            $(this).parent().find('.nested').first().toggleClass('active');
+                            $(this).toggleClass('caret-down');
+                        });
+                    }
+                } else {
+                    console.error('部门树API返回错误:', res);
+                    toastr.error(res.message || '加载部门树失败');
                 }
             })
             .catch(function(error) {

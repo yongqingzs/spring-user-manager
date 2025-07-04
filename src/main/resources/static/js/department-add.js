@@ -83,7 +83,7 @@ $(document).ready(function() {
         axios.post('/api/departments', formData)
             .then(function(response) {
                 const res = response.data;
-                if (res.success) {
+                if (res.code === 200) {
                     toastr.success(res.message || '部门创建成功');
                     
                     // 延迟跳转到部门列表页
@@ -115,15 +115,22 @@ $(document).ready(function() {
             }
         })
             .then(function(response) {
-                const departments = response.data.departments || [];
-                const parentSelect = $('#parentCode');
+                const res = response.data;
                 
-                // 已经有默认的空选项，不需要再添加
-                
-                // 添加部门选项
-                departments.forEach(function(dept) {
-                    parentSelect.append(`<option value="${dept.code}">${dept.name} (${dept.code})</option>`);
-                });
+                if (res.code === 200 && res.data) {
+                    const departments = res.data.list || [];
+                    const parentSelect = $('#parentCode');
+                    
+                    // 已经有默认的空选项，不需要再添加
+                    
+                    // 添加部门选项
+                    departments.forEach(function(dept) {
+                        parentSelect.append(`<option value="${dept.code}">${dept.name} (${dept.code})</option>`);
+                    });
+                } else {
+                    console.error('父部门API返回错误:', res);
+                    toastr.warning(res.message || '加载父部门列表失败');
+                }
             })
             .catch(function(error) {
                 console.error('加载父部门失败:', error);

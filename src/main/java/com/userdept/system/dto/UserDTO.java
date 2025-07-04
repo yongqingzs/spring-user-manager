@@ -21,9 +21,10 @@ public class UserDTO {
     @Size(max = 32, message = "真实姓名最大长度为32个字符")
     private String realname;
     
+    @NotBlank(message = "密码不能为空")
     private String password;
     
-    @Pattern(regexp = "^1\\d{10}$", message = "手机号格式不正确")
+    @Pattern(regexp = "(^$)|(^1\\d{10}$)", message = "手机号格式不正确")
     private String mobile;
     
     private String idno;

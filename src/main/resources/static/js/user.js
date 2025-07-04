@@ -46,7 +46,7 @@ $(document).ready(function () {
             axios.put(`/api/users/${userId}/status`, { status: newStatus })
                 .then(function(response) {
                     const res = response.data;
-                    if (res.success) {
+                    if (res.code === 200) {
                         toastr.success(res.message);
                         loadUsers(currentPage);
                     } else {
@@ -70,7 +70,7 @@ $(document).ready(function () {
             axios.delete(`/api/users/${userId}`)
                 .then(function(response) {
                     const res = response.data;
-                    if (res.success) {
+                    if (res.code === 200) {
                         console.log('删除用户 API响应:', res);
                         toastr.success(res.message);
                         if ($('#userTableBody tr').length === 1 && currentPage > 1) {
@@ -108,11 +108,18 @@ $(document).ready(function () {
             .then(function(response) {
                 const res = response.data;
                 console.log('加载用户 API响应:', res);
-                console.log('用户数据:', res.users);
-        
-                renderUsers(res.users);
-                renderPagination(page, Math.ceil(res.total / pageSize));
-                totalPages = Math.ceil(res.total / pageSize);
+                
+                if (res.code === 200 && res.data) {
+                    const pageData = res.data;
+                    console.log('用户数据:', pageData.list);
+            
+                    renderUsers(pageData.list);
+                    renderPagination(page, Math.ceil(pageData.total / pageSize), pageData.total);
+                    totalPages = Math.ceil(pageData.total / pageSize);
+                } else {
+                    console.error('API返回错误:', res);
+                    toastr.error(res.message || '加载用户数据失败');
+                }
             })
             .catch(function(error) {
                 console.error('加载失败:', error);
@@ -138,7 +145,7 @@ $(document).ready(function () {
             const statusActionClass = user.status === 1 ? 'btn-warning' : 'btn-success';
             
             // 格式化创建时间
-            const createTime = user.created_time ? new Date(user.created_time).toLocaleDateString() : '-';
+            const createTime = user.createdTime ? new Date(user.createdTime).toLocaleDateString() : '-';
             const row = `
                 <tr>
                     <td>${user.id}</td>
@@ -159,15 +166,15 @@ $(document).ready(function () {
             `;
             tbody.append(row);
         });
-        
-        // 更新记录总数显示
-        $('#totalRecords').text(`共 ${users.length} 条记录`);
     }
     
     // 渲染分页
-    function renderPagination(currentPage, totalPages) {
+    function renderPagination(currentPage, totalPages, totalRecords) {
         const pagination = $('#pagination');
         pagination.empty();
+        
+        // 更新记录总数显示
+        $('#totalRecords').text(`共 ${totalRecords || 0} 条记录`);
         
         if (totalPages <= 1) {
             return;

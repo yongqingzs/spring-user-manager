@@ -113,25 +113,33 @@ $(document).ready(function () {
             params: { per_page: 1000 } // 获取所有部门
         })
             .then(function(response) {
-                const departments = response.data.departments || [];
-                console.log("加载到部门列表:", departments);
+                const res = response.data;
+                console.log("部门API响应:", res);
                 
-                const departmentsSelect = $('#departments');
-                if (departmentsSelect.length > 0) {
-                    // 添加"无部门"选项
-                    departmentsSelect.append('<option value="">-- 无部门 --</option>');
+                if (res.code === 200 && res.data) {
+                    const departments = res.data.list || [];
+                    console.log("加载到部门列表:", departments);
                     
-                    // 添加部门选项
-                    departments.forEach(function(dept) {
-                        departmentsSelect.append(`<option value="${dept.code}">${dept.name}</option>`);
-                    });
-                    
-                    if ($.fn.select2 && typeof departmentsSelect.select2 === 'function') {
-                        departmentsSelect.select2({
-                            placeholder: "-- 选择部门 --",
-                            allowClear: true
+                    const departmentsSelect = $('#departments');
+                    if (departmentsSelect.length > 0) {
+                        // 添加"无部门"选项
+                        departmentsSelect.append('<option value="">-- 无部门 --</option>');
+                        
+                        // 添加部门选项
+                        departments.forEach(function(dept) {
+                            departmentsSelect.append(`<option value="${dept.code}">${dept.name}</option>`);
                         });
+                        
+                        if ($.fn.select2 && typeof departmentsSelect.select2 === 'function') {
+                            departmentsSelect.select2({
+                                placeholder: "-- 选择部门 --",
+                                allowClear: true
+                            });
+                        }
                     }
+                } else {
+                    console.error('部门API返回错误:', res);
+                    toastr.warning(res.message || '加载部门列表失败');
                 }
             })
             .catch(function(error) {
@@ -168,7 +176,7 @@ $(document).ready(function () {
         if (departmentSelect.length > 0) {
             const selectedDept = departmentSelect.val();
             if (selectedDept) {
-                userData.departments = [selectedDept]; // 将选中的部门编码放入数组
+                userData.departments = Array.isArray(selectedDept) ? selectedDept : [selectedDept];
             }
         }
 
@@ -181,7 +189,7 @@ $(document).ready(function () {
         axios.post('/api/users', userData)
             .then(function(response) {
                 const res = response.data;
-                if (res.success) {
+                if (res.code === 200) {
                     console.log('API响应:', res);
                     toastr.success(res.message);
                     setTimeout(function() {

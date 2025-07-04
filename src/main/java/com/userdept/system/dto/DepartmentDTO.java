@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size;
 public class DepartmentDTO {
     
     @NotBlank(message = "部门编号不能为空")
-    @Size(min = 2, max = 32, message = "部门编号长度必须在2-32个字符之间")
+    @Size(min = 1, max = 32, message = "部门编号长度必须在1-32个字符之间")
     private String code;
     
     @NotBlank(message = "部门名称不能为空")

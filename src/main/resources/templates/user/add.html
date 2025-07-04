@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:replace="~{base :: layout(~{::title}, ~{::div})}">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{base :: layout(~{::title}, ~{::div}, ~{::extraJs})}"
 <head>
     <title>添加用户 - 用户部门管理系统</title>
 </head>
@@ -82,10 +83,10 @@
             </form>
         </div>
     </div>
-
-    <script th:src="@{/js/user-add.js}"></script>
 </div>
+
+<th:block th:fragment="extraJs">
+    <script th:src="@{/js/user-add.js}"></script>
+</th:block>
 </body>
 </html>
-<script src="{{ url_for('static', filename='js/user-add.js') }}"></script>
-{% endblock %}

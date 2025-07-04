@@ -99,40 +99,47 @@ $(document).ready(function() {
             }
         })
             .then(function(response) {
-                const departments = response.data.departments || [];
-                const parentSelect = $('#parentCode');
+                const res = response.data;
                 
-                // 添加部门选项，但排除当前部门及其子部门
-                departments.forEach(function(dept) {
-                    // 如果当前部门不是自己，且不是当前部门的子部门
-                    if (window.departmentData && dept.code !== window.departmentData.code) {
-                        // 检查是否可能形成循环引用
-                        let canBeParent = true;
-                        let currentDept = dept;
-                        
-                        // 检查这个部门的父部门链是否包含当前部门
-                        while (currentDept && currentDept.parent_code) {
-                            if (currentDept.parent_code === window.departmentData.code) {
-                                canBeParent = false;
-                                break;
+                if (res.code === 200 && res.data) {
+                    const departments = res.data.list || [];
+                    const parentSelect = $('#parentCode');
+                    
+                    // 添加部门选项，但排除当前部门及其子部门
+                    departments.forEach(function(dept) {
+                        // 如果当前部门不是自己，且不是当前部门的子部门
+                        if (window.departmentData && dept.code !== window.departmentData.code) {
+                            // 检查是否可能形成循环引用
+                            let canBeParent = true;
+                            let currentDept = dept;
+                            
+                            // 检查这个部门的父部门链是否包含当前部门
+                            while (currentDept && currentDept.parent_code) {
+                                if (currentDept.parent_code === window.departmentData.code) {
+                                    canBeParent = false;
+                                    break;
+                                }
+                                
+                                // 在实际应用中，这需要额外的API调用来获取父部门信息
+                                // 此处简化处理
+                                const parentDept = departments.find(d => d.code === currentDept.parent_code);
+                                if (!parentDept) break;
+                                currentDept = parentDept;
                             }
                             
-                            // 在实际应用中，这需要额外的API调用来获取父部门信息
-                            // 此处简化处理
-                            const parentDept = departments.find(d => d.code === currentDept.parent_code);
-                            if (!parentDept) break;
-                            currentDept = parentDept;
+                            if (canBeParent) {
+                                parentSelect.append(`<option value="${dept.code}">${dept.name} (${dept.code})</option>`);
+                            }
                         }
-                        
-                        if (canBeParent) {
-                            parentSelect.append(`<option value="${dept.code}">${dept.name} (${dept.code})</option>`);
-                        }
+                    });
+                    
+                    // 如果已加载了部门数据，则设置父部门选择
+                    if (window.departmentData && window.departmentData.parent_code) {
+                        parentSelect.val(window.departmentData.parent_code);
                     }
-                });
-                
-                // 如果已加载了部门数据，则设置父部门选择
-                if (window.departmentData && window.departmentData.parent_code) {
-                    parentSelect.val(window.departmentData.parent_code);
+                } else {
+                    console.error('父部门API返回错误:', res);
+                    toastr.warning(res.message || '加载父部门列表失败');
                 }
             })
             .catch(function(error) {
@@ -166,7 +173,7 @@ $(document).ready(function() {
         axios.put(`/api/departments/${deptId}`, formData)
             .then(function(response) {
                 const res = response.data;
-                if (res.success) {
+                if (res.code === 200) {
                     toastr.success(res.message || '部门更新成功');
                     
                     // 延迟跳转到部门列表页

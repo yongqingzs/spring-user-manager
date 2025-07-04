@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:replace="~{base :: layout(~{::title}, ~{::div})}">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{base :: layout(~{::title}, ~{::div}, ~{::extraJs})}">
 <head>
     <title>用户管理 - 用户部门管理系统</title>
     <style>
@@ -140,7 +141,10 @@
         </div>
     </div>
 
-    <script th:src="@{/js/user.js}"></script>
 </div>
+
+<th:block th:fragment="extraJs">
+    <script th:src="@{/js/user.js}"></script>
+</th:block>
 </body>
 </html>

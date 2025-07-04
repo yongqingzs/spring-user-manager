@@ -91,56 +91,64 @@ $(document).ready(function () {
         
         axios.get(`/api/users/${userId}`)
             .then(function(response) {
-                const userData = response.data;
-                console.log("加载到用户数据:", userData);
+                const res = response.data;
+                console.log("用户API响应:", res);
                 
-                // 填充表单字段
-                $('#username').val(userData.username);
-                if (userData.username) {
-                    // 用户名通常不允许修改，设为只读
-                    $('#username').prop('readonly', true);
-                }
-                
-                $('#realname').val(userData.realname || '');
-                
-                // 设置性别选项
-                if (userData.sex !== undefined) {
-                    $(`input[name="sex"][value="${userData.sex}"]`).prop('checked', true);
-                }
-                
-                $('#mobile').val(userData.mobile || '');
-                $('#idno').val(userData.idno || '');
-                $('#email').val(userData.email || '');
-                
-                // 设置状态选项
-                if (userData.status !== undefined) {
-                    $(`input[name="status"][value="${userData.status}"]`).prop('checked', true);
-                }
-                
-                // 处理用户扩展信息
-                if (userData.user_ext) {
-                    try {
-                        let userExt = userData.user_ext;
-                        if (typeof userExt === 'string') {
-                            userExt = JSON.parse(userExt);
-                        }
-                        $('#user_ext').val(JSON.stringify(userExt, null, 2));
-                    } catch (e) {
-                        console.error("解析用户扩展信息失败:", e);
-                        $('#user_ext').val('');
+                if (res.code === 200 && res.data) {
+                    const userData = res.data;
+                    console.log("加载到用户数据:", userData);
+                    
+                    // 填充表单字段
+                    $('#username').val(userData.username);
+                    if (userData.username) {
+                        // 用户名通常不允许修改，设为只读
+                        $('#username').prop('readonly', true);
                     }
+                    
+                    $('#realname').val(userData.realname || '');
+                    
+                    // 设置性别选项
+                    if (userData.sex !== undefined) {
+                        $(`input[name="sex"][value="${userData.sex}"]`).prop('checked', true);
+                    }
+                    
+                    $('#mobile').val(userData.mobile || '');
+                    $('#idno').val(userData.idno || '');
+                    $('#email').val(userData.email || '');
+                    
+                    // 设置状态选项
+                    if (userData.status !== undefined) {
+                        $(`input[name="status"][value="${userData.status}"]`).prop('checked', true);
+                    }
+                    
+                    // 处理用户扩展信息
+                    if (userData.user_ext) {
+                        try {
+                            let userExt = userData.user_ext;
+                            if (typeof userExt === 'string') {
+                                userExt = JSON.parse(userExt);
+                            }
+                            $('#user_ext').val(JSON.stringify(userExt, null, 2));
+                        } catch (e) {
+                            console.error("解析用户扩展信息失败:", e);
+                            $('#user_ext').val('');
+                        }
+                    }
+                    
+                    // 加载用户部门
+                    if ($('#departments').length > 0) {
+                        loadDepartments(userData.username);
+                    }
+                    
+                    // 表单加载完成，去除加载状态
+                    $('#formLoader').hide();
+                    $('#editUserForm').removeClass('d-none');
+                    
+                    toastr.success("用户数据加载完成");
+                } else {
+                    console.error('用户API返回错误:', res);
+                    toastr.error(res.message || '加载用户数据失败');
                 }
-                
-                // 加载用户部门
-                if ($('#departments').length > 0) {
-                    loadDepartments(userData.username);
-                }
-                
-                // 表单加载完成，去除加载状态
-                $('#formLoader').hide();
-                $('#editUserForm').removeClass('d-none');
-                
-                toastr.success("用户数据加载完成");
             })
             .catch(function(error) {
                 console.error('加载用户数据失败:', error.response?.data || error);
@@ -162,21 +170,29 @@ $(document).ready(function () {
         
         axios.get('/api/departments')
             .then(function(response) {
-                const departments = response.data.departments || [];
-                console.log("加载到部门列表:", departments);
+                const res = response.data;
+                console.log("部门API响应:", res);
                 
-                const departmentsSelect = $('#departments');
-                departmentsSelect.empty();
-                
-                // 添加"无部门"选项
-                departmentsSelect.append('<option value="">-- 无部门 --</option>');
-                
-                departments.forEach(function(dept) {
-                    departmentsSelect.append(new Option(dept.name, dept.code));
-                });
-                
-                // 加载用户已有的部门
-                loadUserDepartments(username);
+                if (res.code === 200 && res.data) {
+                    const departments = res.data.list || [];
+                    console.log("加载到部门列表:", departments);
+                    
+                    const departmentsSelect = $('#departments');
+                    departmentsSelect.empty();
+                    
+                    // 添加"无部门"选项
+                    departmentsSelect.append('<option value="">-- 无部门 --</option>');
+                    
+                    departments.forEach(function(dept) {
+                        departmentsSelect.append(new Option(dept.name, dept.code));
+                    });
+                    
+                    // 加载用户已有的部门
+                    loadUserDepartments(username);
+                } else {
+                    console.error('部门API返回错误:', res);
+                    toastr.error(res.message || '加载部门数据失败');
+                }
             })
             .catch(function(error) {
                 console.error('加载部门失败:', error);
@@ -274,7 +290,7 @@ $(document).ready(function () {
                 const res = response.data;
                 console.log("更新用户响应:", res);
                 
-                if (res.success) {
+                if (res.code === 200) {
                     toastr.success(res.message || '更新用户成功');
                     
                     // 延迟跳转回用户列表页
