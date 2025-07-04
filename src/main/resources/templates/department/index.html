@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:replace="~{base :: layout(~{::title}, ~{::div})}">
+<head>
+    <title>部门管理 - 用户部门管理系统</title>
+</head>
+<body>
+<div>
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0"><i class="fas fa-sitemap"></i> 部门管理</h5>
+            <a th:href="@{/departments/add}" class="btn btn-light btn-sm">
+                <i class="fas fa-plus"></i> 添加部门
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="搜索部门...">
+                        <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                            <i class="fas fa-search"></i> 搜索
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-primary" id="btnTreeView">
+                            <i class="fas fa-sitemap"></i> 树形视图
+                        </button>
+                        <button type="button" class="btn btn-outline-primary active" id="btnListView">
+                            <i class="fas fa-list"></i> 列表视图
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="treeViewContainer" class="d-none">
+                <div id="departmentTree" class="department-tree">
+                    <!-- 部门树将通过JavaScript动态加载 -->
+                </div>
+            </div>
+            
+            <div id="listViewContainer">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>部门编码</th>
+                                <th>部门名称</th>
+                                <th>父部门</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="departmentTableBody">
+                        <!-- 部门数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    <span id="totalRecords">共 0 条记录</span>
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination" id="pagination">
+                        <!-- 分页将通过JavaScript动态生成 -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 部门详情模态框 -->
+<div class="modal fade" id="departmentDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-sitemap"></i> 部门详情</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold">部门编码:</label>
+                        <div id="detailCode"></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold">部门名称:</label>
+                        <div id="detailName"></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold">父部门:</label>
+                        <div id="detailParentCode"></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold">创建时间:</label>
+                        <div id="detailCreatedTime"></div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="fw-bold">描述:</label>
+                        <div id="detailDescription"></div>
+                    </div>
+                </div>
+                
+                <hr>
+                <h6 class="fw-bold">部门成员</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>姓名</th>
+                                <th>添加时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departmentUsers">
+                            <!-- 部门用户将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="noDepartmentUsers" class="text-muted d-none">暂无用户</div>
+                
+                <hr>
+                <form id="addUserToDeptForm" class="row g-3">
+                    <div class="col-md-8">
+                        <select class="form-select" id="userToAdd">
+                            <option value="">选择用户...</option>
+                            <!-- 用户选项将通过JavaScript动态加载 -->
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> 添加用户</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> 确认删除</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要删除部门 <strong id="deleteDepartmentName"></strong> 吗？此操作不可撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 用户移除确认模态框 -->
+<div class="modal fade" id="removeUserConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> 确认移除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要将用户 <strong id="removeUserName"></strong> 从部门 <strong id="removeDepartmentName"></strong> 中移除吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-warning" id="confirmRemoveBtn">确认移除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/department.js}"></script>
+</div>
+</body>
+</html>
+{% endblock %}

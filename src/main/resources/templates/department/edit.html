@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{base :: header('编辑部门')}"></head>
+<body>
+<div th:replace="~{base :: layout(~{::content})}">
+    <div th:fragment="content">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-edit"></i> 编辑部门</h5>
+            </div>
+            <div class="card-body">
+                <form id="editDepartmentForm" th:attr="data-dept-id=${deptId}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="code" class="form-label">部门编码</label>
+                            <input type="text" class="form-control" id="code" name="code" readonly>
+                            <div class="form-text">部门编码不可修改</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label required">部门名称</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="parentCode" class="form-label">父部门</label>
+                            <select class="form-select" id="parentCode" name="parent_code">
+                                <option value="">无 (顶级部门)</option>
+                                <!-- 部门选项将通过JavaScript动态加载 -->
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="description" class="form-label">部门描述</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <div class="alert alert-danger d-none" id="errorMessage"></div>
+                            <button type="submit" class="btn btn-primary me-2"><i class="fas fa-save"></i> 保存</button>
+                            <a th:href="@{/departments}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> 返回</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script th:src="@{/js/department-edit.js}"></script>
+</body>
+</html>

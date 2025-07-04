@@ -101,8 +101,8 @@ docker
 docker ps
 
 # 进入容器内部
-docker exec -it flask-user-app_web_1 bash
-docker exec -it flask-user-app_db_1 bash
+docker exec -it flask-user-app_web_1 sh
+docker exec -it flask-user-app_db_1 sh
 
 # 清除悬空镜像
 docker image prune
