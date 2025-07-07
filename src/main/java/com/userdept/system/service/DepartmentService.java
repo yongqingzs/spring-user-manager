@@ -6,6 +6,7 @@ import com.userdept.system.dto.DepartmentDTO;
 import com.userdept.system.entity.Department;
 import com.userdept.system.entity.User;
 import com.userdept.system.entity.UserDepartment;
+import com.userdept.system.vo.UserDepartmentVO;
 
 import java.util.List;
 
@@ -108,4 +109,12 @@ public interface DepartmentService extends IService<Department> {
      * @return 关联记录列表
      */
     List<UserDepartment> getUserDepartmentRelations(String username);
+
+    /**
+     * 获取用户部门视图对象列表
+     * 
+     * @param departmentCode 部门编号
+     * @return 用户部门视图对象列表
+     */
+    List<UserDepartmentVO> getUserDepartmentVOs(String departmentCode);
 }

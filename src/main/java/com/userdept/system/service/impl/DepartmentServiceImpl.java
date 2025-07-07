@@ -12,6 +12,7 @@ import com.userdept.system.mapper.DepartmentMapper;
 import com.userdept.system.mapper.UserDepartmentMapper;
 import com.userdept.system.mapper.UserMapper;
 import com.userdept.system.service.DepartmentService;
+import com.userdept.system.vo.UserDepartmentVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -92,6 +93,12 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createDepartment(DepartmentDTO departmentDTO, String creator) {
+        // 新增唯一性校验
+        Department exist = departmentMapper.selectOne(Wrappers.<Department>lambdaQuery()
+                .eq(Department::getCode, departmentDTO.getCode()));
+        if (exist != null) {
+            throw new IllegalArgumentException("部门编码已存在，请更换编码");
+        }
         Department department = new Department();
         department.setCode(departmentDTO.getCode());
         department.setName(departmentDTO.getName());
@@ -241,5 +248,34 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
                 Wrappers.<UserDepartment>lambdaQuery()
                         .eq(UserDepartment::getUsername, username)
         );
+    }
+
+    @Override
+    public List<UserDepartmentVO> getUserDepartmentVOs(String departmentCode) {
+        List<UserDepartment> userDepts = userDepartmentMapper.selectList(
+                Wrappers.<UserDepartment>lambdaQuery()
+                        .eq(UserDepartment::getDepartmentCode, departmentCode)
+        );
+        if (userDepts.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<String> usernames = userDepts.stream().map(UserDepartment::getUsername).toList();
+        List<User> users = userMapper.selectList(Wrappers.<User>lambdaQuery().in(User::getUsername, usernames));
+        // username -> User
+        Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getUsername, u -> u));
+        List<UserDepartmentVO> voList = new ArrayList<>();
+        for (UserDepartment ud : userDepts) {
+            User u = userMap.get(ud.getUsername());
+            if (u != null) {
+                UserDepartmentVO vo = new UserDepartmentVO();
+                vo.setUsername(u.getUsername());
+                vo.setRealname(u.getRealname());
+                vo.setEmail(u.getEmail());
+                vo.setStatus(u.getStatus());
+                vo.setAddedTime(ud.getCreatedTime());
+                voList.add(vo);
+            }
+        }
+        return voList;
     }
 }

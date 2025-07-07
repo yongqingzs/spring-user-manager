@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.userdept.system.dto.UserDTO;
 import com.userdept.system.entity.User;
+import com.userdept.system.entity.Department;
+
+import java.util.List;
 
 /**
  * 用户服务接口
@@ -64,4 +67,11 @@ public interface UserService extends IService<User> {
      * @return 是否成功
      */
     boolean changeUserStatus(Long userId, Integer status, String modifier);
+
+    /**
+     * 获取用户所属部门列表
+     * @param userId 用户ID
+     * @return 部门列表
+     */
+    List<Department> getDepartmentsByUserId(Long userId);
 }

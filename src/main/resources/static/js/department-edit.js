@@ -63,7 +63,7 @@ $(document).ready(function() {
     function loadDepartmentInfo(deptId) {
         axios.get(`/api/departments/${deptId}`)
             .then(function(response) {
-                const department = response.data;
+                const department = response.data.data || response.data;
                 console.log("加载到部门数据:", department);
                 
                 // 填充表单字段
@@ -105,6 +105,7 @@ $(document).ready(function() {
                     const departments = res.data.list || [];
                     const parentSelect = $('#parentCode');
                     
+                    parentSelect.empty();
                     // 添加部门选项，但排除当前部门及其子部门
                     departments.forEach(function(dept) {
                         // 如果当前部门不是自己，且不是当前部门的子部门
@@ -153,20 +154,20 @@ $(document).ready(function() {
         // 获取表单数据
         const formData = {
             name: $('#name').val().trim(),
-            parent_code: $('#parentCode').val() || null,
+            parentCode: $('#parentCode').val() || null,
             description: $('#description').val().trim() || null
         };
         
         console.log('更新部门数据:', formData);
         
         // 验证父部门不是自己
-        if (formData.parent_code === $('#code').val()) {
+        if (formData.parentCode === $('#code').val()) {
             toastr.error('不能选择自己作为父部门');
             return;
         }
         
-        // 禁用提交按钮
-        $('button[type="submit"]').prop('disabled', true)
+        // 禁用当前表单的提交按钮
+        $('#editDepartmentForm button[type="submit"]').prop('disabled', true)
             .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 提交中...');
         
         // 发送更新部门请求

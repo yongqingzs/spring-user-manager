@@ -1,3 +1,13 @@
+## 实现思路
+1. 模板引擎适配(Flask Jinja2 → Thymeleaf)
+
+2. 区分开发环境(Dockerfile.dev)、生产环境(Dockerfile)
+- 借助 spring-boot-devtools 热重载
+- 只要用的是 spring-boot-maven-plugin 打包，devtools 依赖不会出现在最终的生产 jar 包里
+
+3. DTO
+- 在 DTO 字段上指定校验组
+
 ## 组件
 - 数据传输（无业务逻辑）
 ```txt

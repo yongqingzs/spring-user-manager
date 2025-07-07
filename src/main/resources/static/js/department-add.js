@@ -69,7 +69,7 @@ $(document).ready(function() {
         const formData = {
             code: $('#code').val().trim(),
             name: $('#name').val().trim(),
-            parent_code: $('#parentCode').val() || null,
+            parentCode: $('#parentCode').val() || null,
             description: $('#description').val().trim() || null
         };
 

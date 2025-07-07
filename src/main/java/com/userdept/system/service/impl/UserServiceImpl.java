@@ -64,6 +64,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createUser(UserDTO userDTO, String creator) {
+        // 新增唯一性校验
+        User exist = userMapper.selectOne(Wrappers.<User>lambdaQuery()
+                .eq(User::getUsername, userDTO.getUsername()));
+        if (exist != null) {
+            throw new IllegalArgumentException("用户名已存在，请更换用户名");
+        }
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setRealname(userDTO.getRealname());
@@ -208,5 +214,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userMapper.updateById(user);
         
         return true;
+    }
+
+    @Override
+    public List<Department> getDepartmentsByUserId(Long userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            return List.of();
+        }
+        // 假设 UserDepartment 关联表用 userId 关联
+        List<UserDepartment> userDepartments = userDepartmentMapper.selectList(
+                Wrappers.<UserDepartment>lambdaQuery().eq(UserDepartment::getUsername, user.getUsername())
+        );
+        if (userDepartments.isEmpty()) {
+            return List.of();
+        }
+        List<String> deptCodes = userDepartments.stream()
+                .map(UserDepartment::getDepartmentCode)
+                .toList();
+        if (deptCodes.isEmpty()) {
+            return List.of();
+        }
+        return departmentMapper.selectList(
+                Wrappers.<Department>lambdaQuery().in(Department::getCode, deptCodes)
+        );
     }
 }

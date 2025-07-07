@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * 主页控制器
@@ -49,8 +50,9 @@ public class IndexController {
      * 编辑用户页面
      */
     @GetMapping("/users/edit/{userId}")
-    public String editUserPage(Model model) {
+    public String editUserPage(@PathVariable Long userId, Model model) {
         model.addAttribute("systemName", systemName);
+        model.addAttribute("userId", userId);
         return "user/edit";
     }
 
@@ -76,8 +78,9 @@ public class IndexController {
      * 编辑部门页面
      */
     @GetMapping("/departments/edit/{deptId}")
-    public String editDepartmentPage(Model model) {
+    public String editDepartmentPage(@PathVariable Long deptId, Model model) {
         model.addAttribute("systemName", systemName);
+        model.addAttribute("deptId", deptId);
         return "department/edit";
     }
 }

@@ -8,11 +8,13 @@ import com.userdept.system.entity.UserDepartment;
 import com.userdept.system.service.DepartmentService;
 import com.userdept.system.vo.PageVO;
 import com.userdept.system.vo.ResultVO;
+import com.userdept.system.vo.UserDepartmentVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -73,11 +75,14 @@ public class DepartmentController {
      * 创建部门
      */
     @PostMapping
-    public ResultVO<Long> createDepartment(@Valid @RequestBody DepartmentDTO departmentDTO) {
+    public ResultVO<Long> createDepartment(@Validated(DepartmentDTO.Create.class) @RequestBody DepartmentDTO departmentDTO) {
         try {
             String currentUsername = getCurrentUsername();
             Long deptId = departmentService.createDepartment(departmentDTO, currentUsername);
             return ResultVO.success("部门创建成功", deptId);
+        } catch (IllegalArgumentException e) {
+            // 唯一性校验失败，返回友好提示
+            return ResultVO.error(e.getMessage());
         } catch (Exception e) {
             log.error("创建部门失败", e);
             return ResultVO.error("创建部门失败: " + e.getMessage());
@@ -90,12 +95,10 @@ public class DepartmentController {
     @PutMapping("/{deptId}")
     public ResultVO<Boolean> updateDepartment(
             @PathVariable Long deptId,
-            @Valid @RequestBody DepartmentDTO departmentDTO) {
-        
+            @Validated(DepartmentDTO.Update.class) @RequestBody DepartmentDTO departmentDTO) {
         try {
             String currentUsername = getCurrentUsername();
             boolean success = departmentService.updateDepartment(deptId, departmentDTO, currentUsername);
-            
             if (success) {
                 return ResultVO.success("部门更新成功", true);
             } else {
@@ -127,12 +130,12 @@ public class DepartmentController {
     }
     
     /**
-     * 获取部门中的用户列表
+     * 获取部门中的用户列表（带加入时间）
      */
     @GetMapping("/{code}/users")
-    public ResultVO<List<User>> getUsersInDepartment(@PathVariable String code) {
+    public ResultVO<List<UserDepartmentVO>> getUsersInDepartment(@PathVariable String code) {
         try {
-            List<User> users = departmentService.getUsersInDepartment(code);
+            List<UserDepartmentVO> users = departmentService.getUserDepartmentVOs(code);
             return ResultVO.success(users);
         } catch (Exception e) {
             log.error("获取部门用户失败", e);

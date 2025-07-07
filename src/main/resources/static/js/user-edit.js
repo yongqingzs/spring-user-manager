@@ -188,7 +188,7 @@ $(document).ready(function () {
                     });
                     
                     // 加载用户已有的部门
-                    loadUserDepartments(username);
+                    loadUserDepartments(userId);
                 } else {
                     console.error('部门API返回错误:', res);
                     toastr.error(res.message || '加载部门数据失败');
@@ -201,21 +201,23 @@ $(document).ready(function () {
     }
     
     // 加载用户部门
-    function loadUserDepartments(username) {
+    function loadUserDepartments(userId) {
         console.log("正在加载用户部门...");
-        
-        axios.get(`/api/users/${username}/departments`)
+        axios.get(`/api/users/${userId}/departments`)
             .then(function(response) {
-                const userDepts = response.data.departments || [];
+                // 兼容后端返回格式
+                let userDepts = [];
+                if (Array.isArray(response.data.data)) {
+                    userDepts = response.data.data;
+                } else if (Array.isArray(response.data.departments)) {
+                    userDepts = response.data.departments;
+                }
                 console.log("加载到用户部门:", userDepts);
-                
                 const deptSelect = $('#departments');
-                
                 // 设置已选部门
                 userDepts.forEach(function(dept) {
                     deptSelect.find(`option[value="${dept.code}"]`).prop('selected', true);
                 });
-                
                 // 如果使用了 Select2 插件，需要更新
                 if ($.fn.select2 && deptSelect.data('select2')) {
                     deptSelect.trigger('change');

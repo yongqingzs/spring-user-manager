@@ -2,6 +2,9 @@ package com.userdept.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.userdept.system.dto.UserDTO;
+import com.userdept.system.dto.UserDTO.Create;
+import com.userdept.system.dto.UserDTO.Update;
+import com.userdept.system.entity.Department;
 import com.userdept.system.entity.User;
 import com.userdept.system.service.UserService;
 import com.userdept.system.vo.PageVO;
@@ -11,10 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 用户控制器
@@ -35,16 +38,16 @@ public class UserController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "per_page", defaultValue = "10") int perPage,
             @RequestParam(value = "query", required = false) String query) {
-        
+
         Page<User> userPage = userService.getUserPage(page, perPage, query);
-        
+
         PageVO<User> pageVO = new PageVO<>(
                 userPage.getTotal(),
                 page,
                 perPage,
                 userPage.getRecords()
         );
-        
+
         return ResultVO.success(pageVO);
     }
 
@@ -64,11 +67,14 @@ public class UserController {
      * 创建用户
      */
     @PostMapping
-    public ResultVO<Long> createUser(@Valid @RequestBody UserDTO userDTO) {
+    public ResultVO<Long> createUser(@Validated(Create.class) @RequestBody UserDTO userDTO) {
         try {
             String currentUsername = getCurrentUsername();
             Long userId = userService.createUser(userDTO, currentUsername);
             return ResultVO.success("用户创建成功", userId);
+        } catch (IllegalArgumentException e) {
+            // 唯一性校验失败，返回友好提示
+            return ResultVO.error(e.getMessage());
         } catch (Exception e) {
             log.error("创建用户失败", e);
             return ResultVO.error("创建用户失败: " + e.getMessage());
@@ -81,12 +87,12 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResultVO<Boolean> updateUser(
             @PathVariable Long userId,
-            @Valid @RequestBody UserDTO userDTO) {
-        
+            @Validated(Update.class) @RequestBody UserDTO userDTO) {
+
         try {
             String currentUsername = getCurrentUsername();
             boolean success = userService.updateUser(userId, userDTO, currentUsername);
-            
+
             if (success) {
                 return ResultVO.success("用户更新成功", true);
             } else {
@@ -105,7 +111,7 @@ public class UserController {
     public ResultVO<Boolean> deleteUser(@PathVariable Long userId) {
         try {
             boolean success = userService.deleteUser(userId);
-            
+
             if (success) {
                 return ResultVO.success("用户删除成功", true);
             } else {
@@ -124,11 +130,11 @@ public class UserController {
     public ResultVO<Boolean> changeUserStatus(
             @PathVariable Long userId,
             @RequestBody User user) {
-        
+
         try {
             String currentUsername = getCurrentUsername();
             boolean success = userService.changeUserStatus(userId, user.getStatus(), currentUsername);
-            
+
             if (success) {
                 String statusText = user.getStatus() == 1 ? "启用" : "禁用";
                 return ResultVO.success("用户已" + statusText, true);
@@ -140,7 +146,16 @@ public class UserController {
             return ResultVO.error("更新用户状态失败: " + e.getMessage());
         }
     }
-    
+
+    /**
+     * 获取用户所属部门列表
+     */
+    @GetMapping("/{userId}/departments")
+    public ResultVO<List<Department>> getUserDepartments(@PathVariable Long userId) {
+        List<Department> departments = userService.getDepartmentsByUserId(userId);
+        return ResultVO.success(departments);
+    }
+
     /**
      * 获取当前登录用户名
      */

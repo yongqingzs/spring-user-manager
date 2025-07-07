@@ -136,14 +136,14 @@ $(document).ready(function() {
 
         departments.forEach(function(department) {
             // 格式化创建时间
-            const createTime = department.created_time ? new Date(department.created_time).toLocaleDateString() : '-';
+            const createTime = department.createdTime ? new Date(department.createdTime).toLocaleDateString() : '-';
             
             const row = `
                 <tr>
                     <td>${department.id}</td>
                     <td>${department.code}</td>
                     <td>${department.name}</td>
-                    <td>${department.parent_code || '无'}</td>
+                    <td>${department.parentCode || department.parent_code || '无'}</td>
                     <td>${createTime}</td>
                     <td class="department-actions">
                         <button type="button" class="btn btn-sm btn-info btn-view" data-id="${department.id}" data-code="${department.code}">
@@ -274,13 +274,13 @@ $(document).ready(function() {
         // 加载部门详情
         axios.get(`/api/departments/${deptId}`)
             .then(function(response) {
-                const dept = response.data;
-                
+                // 兼容后端返回格式
+                let dept = response.data.data || response.data;
                 // 填充详情模态框
                 $('#detailCode').text(dept.code);
                 $('#detailName').text(dept.name);
-                $('#detailParentCode').text(dept.parent_code || '无');
-                $('#detailCreatedTime').text(dept.created_time ? new Date(dept.created_time).toLocaleDateString() : '-');
+                $('#detailParentCode').text(dept.parentCode || dept.parent_code || '无');
+                $('#detailCreatedTime').text(dept.createdTime ? new Date(dept.createdTime).toLocaleDateString() : '-');
                 $('#detailDescription').text(dept.description || '无');
                 
                 // 加载部门用户
@@ -315,7 +315,7 @@ $(document).ready(function() {
     function loadDepartmentUsers(deptCode) {
         axios.get(`/api/departments/${deptCode}/users`)
             .then(function(response) {
-                const users = response.data.users || [];
+                const users = response.data.data || [];
                 const tbody = $('#departmentUsers');
                 tbody.empty();
                 
@@ -331,7 +331,7 @@ $(document).ready(function() {
                             <tr>
                                 <td>${user.username}</td>
                                 <td>${user.realname || '-'}</td>
-                                <td>${user.created_time ? new Date(user.created_time).toLocaleDateString() : '-'}</td>
+                                <td>${user.addedTime ? new Date(user.addedTime).toLocaleDateString() : '-'}</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-danger btn-remove-user" 
                                         data-username="${user.username}" 
@@ -380,11 +380,20 @@ $(document).ready(function() {
             }
         })
             .then(function(response) {
-                const users = response.data.users || [];
+                // 兼容分页和非分页格式
+                let users = [];
+                if (response.data.data) {
+                    if (Array.isArray(response.data.data.list)) {
+                        users = response.data.data.list;
+                    } else if (Array.isArray(response.data.data.records)) {
+                        users = response.data.data.records;
+                    } else if (Array.isArray(response.data.data)) {
+                        users = response.data.data;
+                    }
+                }
                 const select = $('#userToAdd');
                 select.empty();
                 select.append('<option value="">选择用户...</option>');
-                
                 users.forEach(function(user) {
                     select.append(`<option value="${user.username}">${user.username} (${user.realname || '未设置姓名'})</option>`);
                 });
@@ -397,16 +406,14 @@ $(document).ready(function() {
 
     // 移除用户从部门
     function removeUserFromDepartment(username, deptCode, modal) {
-        axios.delete(`/api/users/${username}/departments/${deptCode}`)
+        axios.delete(`/api/departments/user/${username}/${deptCode}`)
             .then(function(response) {
                 const res = response.data;
                 if (res.code === 200) {
                     toastr.success(res.message || '移除用户成功');
                     modal.hide();
-                    
                     // 重新加载部门用户
                     loadDepartmentUsers(deptCode);
-                    
                     // 刷新可添加用户列表
                     loadAvailableUsers(deptCode);
                 } else {
@@ -420,7 +427,6 @@ $(document).ready(function() {
                 if (error.response?.data?.message) {
                     errorMsg = error.response.data.message;
                 }
-                
                 toastr.error(errorMsg);
                 modal.hide();
             });
@@ -428,15 +434,13 @@ $(document).ready(function() {
 
     // 添加用户到部门
     function addUserToDepartment(username, deptCode) {
-        axios.post(`/api/users/${username}/departments/${deptCode}`)
+        axios.post(`/api/departments/user/${username}/${deptCode}`)
             .then(function(response) {
                 const res = response.data;
                 if (res.code === 200) {
                     toastr.success(res.message || '添加用户成功');
-                    
                     // 清空选择
                     $('#userToAdd').val('');
-                    
                     // 重新加载部门用户
                     loadDepartmentUsers(deptCode);
                 } else {
@@ -449,7 +453,6 @@ $(document).ready(function() {
                 if (error.response?.data?.message) {
                     errorMsg = error.response.data.message;
                 }
-                
                 toastr.error(errorMsg);
             });
     }
@@ -463,7 +466,8 @@ $(document).ready(function() {
                 const res = response.data;
                 
                 if (res.code === 200 && res.data) {
-                    const depts = res.data.list || [];
+                    // 树形结构直接在 res.data
+                    const depts = res.data || [];
                     const treeContainer = $('#departmentTree');
                     treeContainer.empty();
                     

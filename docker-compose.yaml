@@ -2,7 +2,11 @@ version: '3'
 
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    # 或
+    # dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -19,10 +23,16 @@ services:
     networks:
       - user-dept-network
     # restart: always
+    # ===生产环境===
+    # volumes:
+    #   - ./target:/app/target
+    #   - ./target/user-dept-system-1.0.0.jar:/app/app.jar
+    # command: ["java", "-jar", "/app/app.jar"]
+    # ===开发环境===
     volumes:
-      - ./target:/app/target
-      - ./target/user-dept-system-1.0.0.jar:/app/app.jar
-    command: ["java", "-jar", "/app/app.jar"]
+      - ./:/app
+      - ~/.m2:/root/.m2
+    command: ["mvn", "spring-boot:run"]
 
   db:
     image: mysql:8.0
