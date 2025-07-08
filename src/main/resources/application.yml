@@ -23,6 +23,9 @@ spring:
   security:
     filter:
       dispatcher-types: REQUEST,FORWARD,INCLUDE,ERROR
+  redis:
+    host: ${SPRING_REDIS_HOST:redis}
+    port: ${SPRING_REDIS_PORT:6379}
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml

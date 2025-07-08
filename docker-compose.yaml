@@ -11,15 +11,21 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+      # 数据库配置
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/user_dept_system?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=user_dept
       - SPRING_DATASOURCE_PASSWORD=user_dept_pwd
+      # Redis配置
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      # 系统自定义配置
       - ADMIN_USERNAME=ggbond
       - ADMIN_PASSWORD=xff123
       - ADMIN_REALNAME=猪猪侠
       - SYSTEM_NAME=望子成龙小学职工管理系统
     depends_on:
       - db
+      - redis
     networks:
       - user-dept-network
     # restart: always
@@ -49,6 +55,14 @@ services:
       - user-dept-network
     restart: always
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    networks:
+      - user-dept-network
+    restart: always
 
 networks:
   user-dept-network:

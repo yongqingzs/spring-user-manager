@@ -32,6 +32,7 @@ public class SecurityConfig {
                      "/favicon/**"
                 ).permitAll()
                 .requestMatchers("/login", "/api/auth/login").permitAll()
+                .requestMatchers("/api/captcha/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

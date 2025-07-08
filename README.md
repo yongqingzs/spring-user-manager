@@ -8,6 +8,9 @@
 3. DTO
 - 在 DTO 字段上指定校验组
 
+4. 验证码（主要为了测试 Redis）
+- 注意使用 RedisConfig 覆盖 host
+
 ## 组件
 - 数据传输（无业务逻辑）
 ```txt
@@ -111,8 +114,9 @@ docker
 docker ps
 
 # 进入容器内部
-docker exec -it flask-user-app_web_1 sh
-docker exec -it flask-user-app_db_1 sh
+docker exec -it spring-user-manager_web_1 sh
+docker exec -it spring-user-manager_db_1 sh
+docker compose exec web bash
 
 # 清除悬空镜像
 docker image prune

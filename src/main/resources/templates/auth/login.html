@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" 
-      th:replace="~{base :: layout(~{::title}, ~{::div}, ~{})}">
+      th:replace="~{base :: layout(~{::title}, ~{::div}, ~{::extraJs})}">
 <head>
     <title>登录 - 用户部门管理系统</title>
 </head>
@@ -13,7 +13,7 @@
                     <h5 class="card-title mb-0"><i class="fas fa-sign-in-alt"></i> 用户登录</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" th:action="@{/api/auth/login}">
+                    <form id="loginForm" method="post" th:action="@{/api/auth/login}">
                         <div class="mb-3">
                             <label for="username" class="form-label">用户名</label>
                             <div class="input-group">
@@ -28,6 +28,15 @@
                                 <input type="password" class="form-control" id="password" name="password" required>
                             </div>
                         </div>
+                        <div class="mb-3">
+                            <label for="captchaInput" class="form-label">验证码</label>
+                            <div class="input-group align-items-center">
+                                <input type="text" class="form-control" id="captchaInput" placeholder="请输入图片中的字符">
+                                <img id="captchaImg" src="" alt="验证码" style="height:40px;cursor:pointer;margin-left:8px;border-radius:4px;border:1px solid #ddd;" title="点击刷新验证码">
+                            </div>
+                            <input type="hidden" id="captchaUuid">
+                            <div id="captchaTip" class="form-text text-danger"></div>
+                        </div>
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> 登录</button>
                         </div>
@@ -40,5 +49,8 @@
         </div>
     </div>
 </div>
+<th:block th:fragment="extraJs">
+    <script th:src="@{/js/login.js}"></script>
+</th:block>
 </body>
 </html>
