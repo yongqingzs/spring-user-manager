@@ -222,7 +222,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             return List.of();
         }
-        // 假设 UserDepartment 关联表用 userId 关联
         List<UserDepartment> userDepartments = userDepartmentMapper.selectList(
                 Wrappers.<UserDepartment>lambdaQuery().eq(UserDepartment::getUsername, user.getUsername())
         );

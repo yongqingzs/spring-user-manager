@@ -9,7 +9,6 @@ import com.userdept.system.entity.User;
 import com.userdept.system.service.UserService;
 import com.userdept.system.vo.PageVO;
 import com.userdept.system.vo.ResultVO;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -47,7 +46,8 @@ public class UserController {
                 perPage,
                 userPage.getRecords()
         );
-
+        
+        log.debug("已获取用户列表");
         return ResultVO.success(pageVO);
     }
 
@@ -57,6 +57,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResultVO<User> getUser(@PathVariable Long userId) {
         User user = userService.getById(userId);
+        log.debug("获取用户详情: userId={}", userId);
         if (user == null) {
             return ResultVO.error("用户不存在");
         }
@@ -93,6 +94,7 @@ public class UserController {
             String currentUsername = getCurrentUsername();
             boolean success = userService.updateUser(userId, userDTO, currentUsername);
 
+            log.debug("更新用户: userId={}, currentUsername={}, success={}", userId, currentUsername, success);
             if (success) {
                 return ResultVO.success("用户更新成功", true);
             } else {
@@ -129,14 +131,16 @@ public class UserController {
     @PutMapping("/{userId}/status")
     public ResultVO<Boolean> changeUserStatus(
             @PathVariable Long userId,
-            @RequestBody User user) {
+            @Validated(Update.class) @RequestBody UserDTO userDTO) {
 
         try {
             String currentUsername = getCurrentUsername();
-            boolean success = userService.changeUserStatus(userId, user.getStatus(), currentUsername);
+            boolean success = userService.changeUserStatus(userId, userDTO.getStatus(), currentUsername);
 
+            log.debug("更新用户状态: userId={}, status={}, currentUsername={}, success={}", 
+                        userId, userDTO.getStatus(), currentUsername, success);
             if (success) {
-                String statusText = user.getStatus() == 1 ? "启用" : "禁用";
+                String statusText = userDTO.getStatus() == 1 ? "启用" : "禁用";
                 return ResultVO.success("用户已" + statusText, true);
             } else {
                 return ResultVO.error("用户不存在");
@@ -153,6 +157,7 @@ public class UserController {
     @GetMapping("/{userId}/departments")
     public ResultVO<List<Department>> getUserDepartments(@PathVariable Long userId) {
         List<Department> departments = userService.getDepartmentsByUserId(userId);
+        log.debug("获取用户所属部门列表: userId={}, departments={}", userId, departments);
         return ResultVO.success(departments);
     }
 

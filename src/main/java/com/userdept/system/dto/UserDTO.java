@@ -3,10 +3,12 @@ package com.userdept.system.dto;
 import lombok.Data;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.groups.Default;
 
 /**
  * 用户数据传输对象
@@ -39,6 +41,9 @@ public class UserDTO {
 
     private String userExt;
 
+    @NotNull(message = "状态不能为空", groups = {Update.class})
+    @Min(value = 0, message = "状态只能为0或1", groups = {Update.class})
+    @Max(value = 1, message = "状态只能为0或1", groups = {Update.class})
     private Integer status = 1;
 
     private String[] departments;

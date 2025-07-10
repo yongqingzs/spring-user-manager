@@ -3,13 +3,10 @@ package com.userdept.system.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.userdept.system.dto.DepartmentDTO;
 import com.userdept.system.entity.Department;
-import com.userdept.system.entity.User;
-import com.userdept.system.entity.UserDepartment;
 import com.userdept.system.service.DepartmentService;
 import com.userdept.system.vo.PageVO;
 import com.userdept.system.vo.ResultVO;
 import com.userdept.system.vo.UserDepartmentVO;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -55,7 +52,8 @@ public class DepartmentController {
                 perPage,
                 departmentPage.getRecords()
         );
-        
+
+        log.debug("已获取部门列表");
         return ResultVO.success(pageVO);
     }
 
@@ -65,6 +63,7 @@ public class DepartmentController {
     @GetMapping("/{deptId}")
     public ResultVO<Department> getDepartment(@PathVariable Long deptId) {
         Department department = departmentService.getById(deptId);
+        log.debug("获取部门详情: deptId={}", deptId);
         if (department == null) {
             return ResultVO.error("部门不存在");
         }
@@ -79,6 +78,7 @@ public class DepartmentController {
         try {
             String currentUsername = getCurrentUsername();
             Long deptId = departmentService.createDepartment(departmentDTO, currentUsername);
+            log.debug("创建部门成功: deptId={}", deptId);
             return ResultVO.success("部门创建成功", deptId);
         } catch (IllegalArgumentException e) {
             // 唯一性校验失败，返回友好提示
@@ -99,6 +99,7 @@ public class DepartmentController {
         try {
             String currentUsername = getCurrentUsername();
             boolean success = departmentService.updateDepartment(deptId, departmentDTO, currentUsername);
+            log.debug("更新部门: deptId={}, currentUsername={}, success={}", deptId, currentUsername, success);
             if (success) {
                 return ResultVO.success("部门更新成功", true);
             } else {
@@ -132,10 +133,11 @@ public class DepartmentController {
     /**
      * 获取部门中的用户列表（带加入时间）
      */
-    @GetMapping("/{code}/users")
-    public ResultVO<List<UserDepartmentVO>> getUsersInDepartment(@PathVariable String code) {
+    @GetMapping("/{deptCode}/users")
+    public ResultVO<List<UserDepartmentVO>> getUsersInDepartment(@PathVariable String deptCode) {
         try {
-            List<UserDepartmentVO> users = departmentService.getUserDepartmentVOs(code);
+            List<UserDepartmentVO> users = departmentService.getUserDepartmentVOs(deptCode);
+            log.debug("获取部门中的用户列表: deptCode={}, users={}", deptCode, users);
             return ResultVO.success(users);
         } catch (Exception e) {
             log.error("获取部门用户失败", e);
@@ -150,6 +152,7 @@ public class DepartmentController {
     public ResultVO<List<Department>> getDepartmentsForUser(@PathVariable String username) {
         try {
             List<Department> departments = departmentService.getDepartmentsForUser(username);
+            log.debug("获取用户部门: username={}, departments={}", username, departments);
             return ResultVO.success(departments);
         } catch (Exception e) {
             log.error("获取用户部门失败", e);
@@ -160,15 +163,17 @@ public class DepartmentController {
     /**
      * 将用户分配到部门
      */
-    @PostMapping("/user/{username}/{code}")
+    @PostMapping("/user/{username}/{deptCode}")
     public ResultVO<Boolean> assignUserToDepartment(
             @PathVariable String username,
-            @PathVariable String code) {
+            @PathVariable String deptCode) {
         
         try {
             String currentUsername = getCurrentUsername();
-            boolean success = departmentService.assignUserToDepartment(username, code, currentUsername);
+            boolean success = departmentService.assignUserToDepartment(username, deptCode, currentUsername);
             
+            log.debug("分配用户到部门: username={}, deptCode={}, currentUsername={}, success={}", 
+                        username, deptCode, currentUsername, success);
             if (success) {
                 return ResultVO.success("用户已分配至部门", true);
             } else {
@@ -183,14 +188,16 @@ public class DepartmentController {
     /**
      * 从部门中移除用户
      */
-    @DeleteMapping("/user/{username}/{code}")
+    @DeleteMapping("/user/{username}/{deptCode}")
     public ResultVO<Boolean> removeUserFromDepartment(
             @PathVariable String username,
-            @PathVariable String code) {
+            @PathVariable String deptCode) {
         
         try {
-            boolean success = departmentService.removeUserFromDepartment(username, code);
-            
+            boolean success = departmentService.removeUserFromDepartment(username, deptCode);
+
+            log.debug("从部门移除用户: username={}, deptCode={}, success={}", 
+                        username, deptCode, success);
             if (success) {
                 return ResultVO.success("用户已从部门中移除", true);
             } else {

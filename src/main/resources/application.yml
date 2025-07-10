@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: user-dept-system
+  logging:
+    level:
+      com.userdept.system.controller: DEBUG
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     # url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:user_dept_system}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai

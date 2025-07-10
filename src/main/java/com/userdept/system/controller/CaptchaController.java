@@ -3,11 +3,13 @@ package com.userdept.system.controller;
 import com.userdept.system.service.CaptchaService;
 import com.userdept.system.vo.ResultVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/captcha")
 @RequiredArgsConstructor
@@ -53,6 +55,7 @@ public class CaptchaController {
         Map<String, String> data = new HashMap<>();
         data.put("uuid", img.uuid);
         data.put("base64", "data:image/png;base64," + img.base64);
+        log.debug("生成图形验证码: uuid={}", img.uuid);
         return ResultVO.success("验证码图片生成成功", data);
     }
 }

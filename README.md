@@ -1,15 +1,32 @@
 ## 实现思路
-1. 模板引擎适配(Flask Jinja2 → Thymeleaf)
+- flyway 完成初始表创建
 
-2. 区分开发环境(Dockerfile.dev)、生产环境(Dockerfile)
-- 借助 spring-boot-devtools 热重载
-- 只要用的是 spring-boot-maven-plugin 打包，devtools 依赖不会出现在最终的生产 jar 包里
+- 模板引擎适配(Flask Jinja2 → Thymeleaf)
 
-3. DTO
-- 在 DTO 字段上指定校验组
+- 区分开发环境(Dockerfile.dev)、生产环境(Dockerfile)
+```txt
+借助 spring-boot-devtools 热重载
+只要用的是 spring-boot-maven-plugin 打包，devtools 依赖不会出现在最终的生产 jar 包里
+```
 
-4. 验证码（主要为了测试 Redis）
-- 注意使用 RedisConfig 覆盖 host
+- DTO
+```txt
+在 DTO 字段上指定校验组
+```
+
+-  验证码（主要为了测试 Redis）
+```txt
+注意使用 RedisConfig 覆盖 host
+验证码校验逻辑需要和密码一起进行
+```
+
+- 更改 CDN 服务来源: https://unpkg.com/
+
+- 额外注解实践
+```txt
+@RequiredArgsConstructor  会为final字段生成构造函数
+@Slf4j 封装日志记录
+```
 
 ## 组件
 - 数据传输（无业务逻辑）
@@ -131,6 +148,7 @@ docker volume inspect spring-user-manager_mysql_data
 # 进入 MySQL 容器
 # mysql: sql客户端命令行工具  spring-user-manager: 数据库名称
 docker exec -it spring-user-manager-db-1 mysql -uuser_dept -puser_dept_pwd user_dept_system
+docker compose exec db mysql -uuser_dept -puser_dept_pwd user_dept_system
 
 # 查看所有表
 SHOW TABLES;

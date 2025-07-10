@@ -3,13 +3,16 @@ package com.userdept.system.exception;
 import com.userdept.system.vo.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -73,6 +76,25 @@ public class GlobalExceptionHandler {
     public ResultVO<Void> handleAccessDeniedException(AccessDeniedException e) {
         log.warn("权限不足: {}", e.getMessage());
         return ResultVO.error(HttpStatus.FORBIDDEN.value(), "权限不足，无法访问");
+    }
+
+    /**
+     * 处理缺失的请求参数异常
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseBody
+    public ResultVO<?> handleMissingServletRequestParameter(MissingServletRequestParameterException ex) {
+        return ResultVO.error(400, "请求参数缺失: " + ex.getParameterName());
+    }
+
+    /**
+     * 处理缺失或格式错误的请求体异常
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResultVO<?> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        log.warn("请求体缺失或格式错误: {}", ex.getMessage());
+        return ResultVO.error(400, "请求体缺失或格式错误，请检查提交的数据");
     }
 
     /**

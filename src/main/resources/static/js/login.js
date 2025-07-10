@@ -42,7 +42,7 @@ $(function() {
         loadCaptcha();
     });
 
-    // 登录表单提交前校验验证码
+    // 登录表单提交，直接提交所有参数到后端，由后端校验验证码
     $('#loginForm').submit(function(e) {
         e.preventDefault();
         const uuid = $('#captchaUuid').val();
@@ -51,36 +51,33 @@ $(function() {
             $('#captchaTip').text('请填写验证码').removeClass('text-success').addClass('text-danger');
             return;
         }
-        axios.post('/api/captcha/verify', null, { params: { uuid: uuid, code: code } })
-            .then(function(response) {
-                if (response.data.code === 200) {
-                    $('#captchaTip').text('验证码正确，正在登录...').removeClass('text-danger').addClass('text-success');
-                    // 验证码正确，手动提交表单，拦截响应
-                    doLogin();
-                } else {
-                    $('#captchaTip').text(response.data.message || '验证码错误').removeClass('text-success').addClass('text-danger');
-                    showError(response.data.message || '验证码错误');
-                    loadCaptcha();
-                }
-            })
-            .catch(function() {
-                $('#captchaTip').text('验证码校验失败').removeClass('text-success').addClass('text-danger');
-                showError('验证码校验失败');
-                loadCaptcha();
-            });
+        doLogin();
     });
 
     // 登录表单实际提交
     function doLogin() {
-        const form = $('#loginForm');
-        const data = form.serialize();
-        axios.post(form.attr('action'), data)
+        const username = $('#username').val();
+        const password = $('#password').val();
+        const uuid = $('#captchaUuid').val();
+        const code = $('#captchaInput').val().trim();
+        axios.post('/api/auth/login',
+            new URLSearchParams({ username, password, uuid, code }),
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        )
             .then(function(response) {
-                // 登录成功，跳转首页
-                window.location.href = '/';
+                console.log('登录响应:', response);
+                if (response.data && response.data.code === 200) {
+                    // 登录成功，跳转首页
+                    window.location.href = '/';
+                } else {
+                    // 登录失败，弹窗提示
+                    let msg = response.data && response.data.message ? response.data.message : '登录失败';
+                    showError(msg);
+                    loadCaptcha();
+                }
             })
             .catch(function(error) {
-                // 登录失败，弹窗提示
+                // 网络或服务器异常
                 let msg = '登录失败';
                 if (error.response && error.response.data && error.response.data.message) {
                     msg = error.response.data.message;
