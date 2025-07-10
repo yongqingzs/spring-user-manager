@@ -48,11 +48,13 @@ src/
 │   │           └── system/
 │   │               ├── UserDeptSystemApplication.java      # 应用入口
 │   │               ├── config/                             # 配置类
+│   │               │   ├── GlobalModelAttributeAdvice.java
 │   │               │   ├── MybatisPlusConfig.java
 │   │               │   ├── SecurityConfig.java
 │   │               │   └── SystemInitializer.java
 │   │               ├── controller/                         # 控制器
 │   │               │   ├── AuthController.java
+│   │               │   ├── CaptchaController.java
 │   │               │   ├── DepartmentController.java
 │   │               │   ├── IndexController.java
 │   │               │   └── UserController.java
@@ -71,23 +73,56 @@ src/
 │   │               │   └── UserMapper.java
 │   │               ├── service/                            # 服务层接口
 │   │               │   ├── AuthService.java
+│   │               │   ├── CaptchaService.java
 │   │               │   ├── DepartmentService.java
 │   │               │   └── UserService.java
 │   │               ├── service/impl/                       # 服务实现
 │   │               │   ├── AuthServiceImpl.java
+│   │               │   ├── CaptchaServiceImpl.java
 │   │               │   ├── DepartmentServiceImpl.java
 │   │               │   ├── UserDetailsServiceImpl.java
 │   │               │   └── UserServiceImpl.java
 │   │               ├── utils/                              # 工具类
+│   │               │   ├── CaptchaImageUtil.java
 │   │               │   └── PasswordUtil.java
 │   │               ├── vo/                                 # 视图对象
 │   │               │   ├── PageVO.java
-│   │               │   └── ResultVO.java
+│   │               │   ├── ResultVO.java
+│   │               │   └── UserDepartmentVO.java
 │   └── resources/
 │       ├── application.yml                                 # 应用配置
+│       ├── db/
+│       │   └── migration/
+│       │       └── V1__init.sql
+│       ├── logback-spring.xml
 │       ├── mapper/                                         # MyBatis XML映射文件
 │       ├── static/                                         # 静态资源
+│       │   ├── css/
+│       │   │   └── style.css
+│       │   ├── favicon/
+│       │   ├── img/
+│       │   └── js/
+│       │       ├── department-add.js
+│       │       ├── department-edit.js
+│       │       ├── department.js
+│       │       ├── login.js
+│       │       ├── main.js
+│       │       ├── user-add.js
+│       │       ├── user-edit.js
+│       │       └── user.js
 │       └── templates/                                      # Thymeleaf模板
+│           ├── base.html
+│           ├── index.html
+│           ├── auth/
+│           │   └── login.html
+│           ├── department/
+│           │   ├── add.html
+│           │   ├── edit.html
+│           │   └── index.html
+│           └── user/
+│               ├── add.html
+│               ├── edit.html
+│               └── index.html
 └── test/                                                   # 测试代码
 ```
 
