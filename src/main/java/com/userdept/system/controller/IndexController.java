@@ -1,6 +1,8 @@
 package com.userdept.system.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 /**
  * 主页控制器
  */
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class IndexController {
@@ -34,6 +37,7 @@ public class IndexController {
     @GetMapping("/users")
     public String usersPage(Model model) {
         model.addAttribute("systemName", systemName);
+        log.debug("访问用户管理页面");
         return "user/index";
     }
 
@@ -62,6 +66,7 @@ public class IndexController {
     @GetMapping("/departments")
     public String departmentsPage(Model model) {
         model.addAttribute("systemName", systemName);
+        log.debug("访问部门管理页面");
         return "department/index";
     }
 

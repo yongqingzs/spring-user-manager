@@ -28,6 +28,12 @@
 @Slf4j 封装日志记录
 ```
 
+- Nginx 反向代理
+```txt
+Nginx 处理静态资源，发送给前端
+Nginx 将 html 相关、 API 接口代理转发给 Web 服务（ Thymeleaf 引擎渲染）
+```
+
 ## 组件
 - 数据传输（无业务逻辑）
 ```txt
@@ -123,6 +129,11 @@ src/
 │               ├── add.html
 │               ├── edit.html
 │               └── index.html
+├── nginx/                                                  # Nginx 配置文件
+│   ├── nginx.conf                                          
+│   └── logs/                                               
+├── doc/                                                    # 文档目录
+│   └── 望子成龙小学职工管理系统.postman_collection.json      # Postman 接口集合
 └── test/                                                   # 测试代码
 ```
 
@@ -146,7 +157,7 @@ docker compose
 ```bash
 # 注意：docker compose 下载镜像地址和 dockerfile 中的镜像地址不一致
 
-# 构建
+# 构建并启动所有服务（包含 Nginx）
 docker compose up --build  # 构建并启动容器
 docker compose up --build -d # 构建并后台运行容器
 docker compose up -d  # 后台运行容器
@@ -156,8 +167,14 @@ docker compose down
 
 # 日志
 docker compose logs -f  # 实时查看容器日志
-docker compose logs -f web
-docker compose logs -f db
+docker compose logs -f nginx  # 查看 Nginx 日志
+docker compose logs -f web    # 查看 Spring Boot 日志
+docker compose logs -f db     # 查看 MySQL 日志
+docker compose logs -f redis  # 查看 Redis 日志
+
+# 重启单个服务
+docker compose restart nginx
+docker compose restart web
 ```
 
 docker
