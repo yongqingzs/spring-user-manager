@@ -103,7 +103,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResultVO<Void> handleException(Exception e) {
-        log.error("系统异常", e);
+        StackTraceElement element = e.getStackTrace()[0];
+        String location = element.getClassName() + "." + element.getMethodName() + "(line:" + element.getLineNumber() + ")";
+        log.error("系统异常 at {}: {}", location, e.getMessage(), e);
         return ResultVO.error("服务器内部错误，请联系管理员");
     }
 }

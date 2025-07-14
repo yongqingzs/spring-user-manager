@@ -278,4 +278,10 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         }
         return voList;
     }
+
+    @Override
+    public Department getById(Long deptId) {
+        if (deptId == null) return null;
+        return departmentMapper.selectById(deptId);
+    }
 }

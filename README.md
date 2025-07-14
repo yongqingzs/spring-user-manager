@@ -1,20 +1,48 @@
+## 注意事项
+- 日志
+```txt
+1. 通用日志采用切面输出，业务逻辑采用log
+2. 过滤字段的定义
+```
+
+- 异常处理
+```txt
+1. 异常采用全局异常控制器处理
+2. 业务异常使用自定义异常类
+3. 其他异常使用通用异常处理
+```
+
+- 不使用 IService 接口
+
+- 使用 Swagger 生成接口文档
+
+
 ## 实现思路
 - flyway 完成初始表创建
 
-- 模板引擎适配(Flask Jinja2 → Thymeleaf)
+- 模板引擎适配: Flask Jinja2 → Thymeleaf
 
-- 区分开发环境(Dockerfile.dev)、生产环境(Dockerfile)
+- 热重载
 ```txt
 借助 spring-boot-devtools 热重载
 只要用的是 spring-boot-maven-plugin 打包，devtools 依赖不会出现在最终的生产 jar 包里
 ```
 
-- DTO
+- 认证授权
 ```txt
-在 DTO 字段上指定校验组
+主要是认证（基于 Spring Security），避免 CSRF 攻击
+SessionID
 ```
 
--  验证码（主要为了测试 Redis）
+- 数据安全和显示
+```txt
+前端+后端校验
+前端：提示
+后端：指定校验组 -> @Validated
+VO DTO
+```
+
+-  验证码：主要为了测试 Redis
 ```txt
 注意使用 RedisConfig 覆盖 host
 验证码校验逻辑需要和密码一起进行

@@ -1,9 +1,6 @@
 package com.userdept.system.service.impl;
 
-import com.userdept.system.entity.User;
 import com.userdept.system.service.AuthService;
-import com.userdept.system.service.UserService;
-import com.userdept.system.utils.PasswordUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +17,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserService userService;
     private final AuthenticationManager authenticationManager;
 
     @Override

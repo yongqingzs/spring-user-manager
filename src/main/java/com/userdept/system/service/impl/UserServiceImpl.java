@@ -238,4 +238,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 Wrappers.<Department>lambdaQuery().in(Department::getCode, deptCodes)
         );
     }
+
+    @Override
+    public User getById(Long userId) {
+        if (userId == null) return null;
+        return userMapper.selectById(userId);
+    }
 }

@@ -1,7 +1,6 @@
 package com.userdept.system.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.userdept.system.dto.UserDTO;
 import com.userdept.system.entity.User;
 import com.userdept.system.entity.Department;
@@ -11,7 +10,7 @@ import java.util.List;
 /**
  * 用户服务接口
  */
-public interface UserService extends IService<User> {
+public interface UserService {
 
     /**
      * 分页查询用户列表
@@ -74,4 +73,11 @@ public interface UserService extends IService<User> {
      * @return 部门列表
      */
     List<Department> getDepartmentsByUserId(Long userId);
+
+    /**
+     * 根据用户ID获取用户对象
+     * @param userId 用户ID
+     * @return 用户对象
+     */
+    User getById(Long userId);
 }

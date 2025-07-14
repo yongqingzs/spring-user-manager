@@ -1,7 +1,6 @@
 package com.userdept.system.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.userdept.system.dto.DepartmentDTO;
 import com.userdept.system.entity.Department;
 import com.userdept.system.entity.User;
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * 部门服务接口
  */
-public interface DepartmentService extends IService<Department> {
+public interface DepartmentService {
 
     /**
      * 分页查询部门列表
@@ -117,4 +116,11 @@ public interface DepartmentService extends IService<Department> {
      * @return 用户部门视图对象列表
      */
     List<UserDepartmentVO> getUserDepartmentVOs(String departmentCode);
+
+    /**
+     * 根据部门ID获取部门对象
+     * @param deptId 部门ID
+     * @return 部门对象
+     */
+    Department getById(Long deptId);
 }

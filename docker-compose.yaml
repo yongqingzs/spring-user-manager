@@ -17,7 +17,7 @@ services:
       - web
     networks:
       - user-dept-network
-    restart: always
+    # restart: always
 
   web:
     build:

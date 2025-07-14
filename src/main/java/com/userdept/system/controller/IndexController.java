@@ -37,7 +37,6 @@ public class IndexController {
     @GetMapping("/users")
     public String usersPage(Model model) {
         model.addAttribute("systemName", systemName);
-        log.debug("访问用户管理页面");
         return "user/index";
     }
 
@@ -66,7 +65,6 @@ public class IndexController {
     @GetMapping("/departments")
     public String departmentsPage(Model model) {
         model.addAttribute("systemName", systemName);
-        log.debug("访问部门管理页面");
         return "department/index";
     }
 
