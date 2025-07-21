@@ -1,52 +1,276 @@
-## 注意事项
-- 日志
-```txt
-1. 通用日志采用切面输出，业务逻辑采用log
-2. 过滤字段的定义
+# 用户部门管理系统
+
+基于 Spring Boot + React 的前后端分离用户部门管理系统。
+
+## 项目结构
+
+```
+├── backend/                    # 后端 Spring Boot 项目
+│   ├── src/main/java/         # Java 源代码
+│   ├── src/main/resources/    # 配置文件和静态资源
+│   ├── pom.xml               # Maven 依赖配置
+│   └── Dockerfile            # 后端 Docker 配置
+├── frontend/                  # 原始前端模板文件（Thymeleaf）
+├── frontend-react/           # 新的 React 前端项目
+│   ├── src/                  # React 源代码
+│   ├── public/               # 静态资源
+│   ├── package.json          # npm 依赖配置
+│   └── vite.config.ts        # Vite 构建配置
+├── nginx/                    # Nginx 配置文件
+├── doc/                      # 文档目录
+│   ├── backend-api.md        # 后端 API 说明文档
+│   └── *.postman_collection.json # Postman 测试集合
+├── docker-compose.yaml       # Docker Compose 配置
+└── README.md                # 项目说明文档
 ```
 
-- 异常处理
-```txt
-1. 异常采用全局异常控制器处理
-2. 业务异常使用自定义异常类
-3. 其他异常使用通用异常处理
+## 技术栈
+
+### 后端技术栈
+- **Spring Boot 3.1.5**: 后端框架
+- **Spring Security**: 认证和授权
+- **MyBatis-Plus**: 数据访问层
+- **MySQL**: 关系型数据库
+- **Redis**: 缓存和会话存储
+- **JWT**: 无状态认证
+- **Flyway**: 数据库版本管理
+- **Swagger/OpenAPI**: API 文档生成
+
+### 前端技术栈
+- **React 18**: 前端框架
+- **TypeScript**: 类型安全
+- **Ant Design**: UI 组件库
+- **Vite**: 构建工具和开发服务器
+- **React Router**: 路由管理
+- **Zustand**: 轻量级状态管理
+- **Axios**: HTTP 客户端
+
+### 基础设施
+- **Docker**: 容器化部署
+- **Nginx**: 反向代理和静态文件服务
+- **Docker Compose**: 多容器应用管理
+
+## 快速开始
+
+### 环境要求
+- Java 17+
+- Node.js 16+
+- MySQL 8.0+
+- Redis 6.0+
+- Docker & Docker Compose (可选)
+
+### 使用 Docker Compose (推荐)
+
+1. 克隆项目
+```bash
+git clone <repository-url>
+cd spring-user-manager
 ```
 
-- 不使用 IService 接口
-
-- 使用 Swagger 生成接口文档
-
-
-## 实现思路
-- flyway 完成初始表创建
-
-- 模板引擎适配: Flask Jinja2 → Thymeleaf
-
-- 热重载
-```txt
-借助 spring-boot-devtools 热重载
-只要用的是 spring-boot-maven-plugin 打包，devtools 依赖不会出现在最终的生产 jar 包里
+2. 启动所有服务
+```bash
+docker-compose up -d
 ```
 
-- 认证授权
-```txt
-主要是认证（基于 Spring Security），避免 CSRF 攻击
-SessionID
+3. 访问应用
+- 前端应用: http://localhost
+- 后端 API: http://localhost:8080
+- API 文档: http://localhost:8080/swagger-ui.html
+
+### 手动部署
+
+#### 后端部署
+
+1. 配置数据库
+```bash
+# 创建数据库
+CREATE DATABASE user_dept_system;
 ```
 
-- 数据安全和显示
-```txt
-前端+后端校验
-前端：提示
-后端：指定校验组 -> @Validated
-VO DTO
+2. 修改配置文件
+```yaml
+# backend/src/main/resources/application.yml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/user_dept_system
+    username: your_username
+    password: your_password
+  data:
+    redis:
+      host: localhost
+      port: 6379
 ```
 
--  验证码：主要为了测试 Redis
-```txt
-注意使用 RedisConfig 覆盖 host
-验证码校验逻辑需要和密码一起进行
+3. 启动后端
+```bash
+cd backend
+mvn spring-boot:run
 ```
+
+#### 前端部署
+
+1. 安装依赖
+```bash
+cd frontend-react
+npm install
+```
+
+2. 启动开发服务器
+```bash
+npm run dev
+```
+
+3. 构建生产版本
+```bash
+npm run build
+```
+
+## 功能特性
+
+### 用户管理
+- ✅ 用户列表查看（分页、搜索）
+- ✅ 用户创建、编辑、删除
+- ✅ 用户状态管理（启用/禁用）
+- ✅ 密码重置功能
+- ✅ 用户信息验证
+
+### 部门管理
+- ✅ 部门列表查看（分页、搜索）
+- ✅ 部门树形结构展示
+- ✅ 部门创建、编辑、删除
+- ✅ 多级部门结构支持
+- ✅ 部门与用户关联管理
+
+### 认证和授权
+- ✅ JWT Token 认证
+- ✅ 登录登出功能
+- ✅ 路由权限保护
+- ✅ 自动登出（Token 过期）
+- ✅ 密码加密存储
+
+### 系统特性
+- ✅ 响应式 UI 设计
+- ✅ 中文本地化
+- ✅ 统一异常处理
+- ✅ API 文档自动生成
+- ✅ 数据库版本管理
+- ✅ 操作日志记录
+
+## 默认账户
+
+- **用户名**: `ggbond`
+- **密码**: `xff123`
+
+## API 文档
+
+详细的 API 文档请查看：
+- [后端 API 说明文档](doc/backend-api.md)
+- Swagger UI: http://localhost:8080/swagger-ui.html
+
+## 开发指南
+
+### 后端开发
+- 使用 Spring Boot DevTools 实现热重载
+- 遵循 RESTful API 设计规范
+- 使用全局异常处理器统一错误处理
+- 通过 AOP 实现请求日志记录
+
+### 前端开发
+- 使用 TypeScript 确保类型安全
+- 组件化开发，提高代码复用性
+- 使用 Ant Design 保持 UI 一致性
+- 通过 Axios 拦截器统一处理 API 请求
+
+### 数据库
+- 使用 Flyway 进行数据库版本控制
+- 所有表都包含创建时间、更新时间等审计字段
+- 使用逻辑删除而非物理删除
+
+## 部署说明
+
+### 生产环境部署
+
+1. **数据库配置**
+   - 使用独立的 MySQL 实例
+   - 配置数据库连接池
+   - 定期备份数据
+
+2. **Redis 配置**
+   - 配置 Redis 持久化
+   - 设置合适的内存策略
+
+3. **应用配置**
+   - 修改 JWT 密钥
+   - 配置日志级别
+   - 设置合适的 JVM 参数
+
+4. **Nginx 配置**
+   - 配置 HTTPS
+   - 启用 gzip 压缩
+   - 设置静态资源缓存
+
+### 安全注意事项
+
+1. **JWT 安全**
+   - 生产环境使用强密钥
+   - 设置合理的过期时间
+   - 考虑实现 Refresh Token
+
+2. **数据库安全**
+   - 使用独立的数据库用户
+   - 限制数据库用户权限
+   - 启用数据库连接加密
+
+3. **应用安全**
+   - 定期更新依赖版本
+   - 启用 HTTPS
+   - 配置防火墙规则
+
+## 测试
+
+### API 测试
+项目提供了 Postman 测试集合，位于 `doc/` 目录下：
+1. 导入 Postman 集合文件
+2. 设置环境变量（如 API 基础 URL）
+3. 运行测试用例
+
+### 前端测试
+```bash
+cd frontend-react
+npm test  # 运行单元测试（需要添加测试）
+```
+
+## 贡献指南
+
+1. Fork 项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开 Pull Request
+
+## 许可证
+
+本项目采用 MIT 许可证。详情请参阅 [LICENSE](LICENSE) 文件。
+
+## 更新日志
+
+### v2.0.0 (当前版本)
+- 🎉 完成前后端分离改造
+- ✨ 使用 React + TypeScript 重构前端
+- 🔒 升级为 JWT 认证方式
+- 📚 完善 API 文档
+- 🐳 优化 Docker 部署配置
+
+### v1.0.0 (原版本)
+- 基于 Spring Boot + Thymeleaf 的单体应用
+- 基础的用户和部门管理功能
+- Session 认证方式
+
+## 技术支持
+
+如有问题，请通过以下方式联系：
+- 创建 GitHub Issue
+- 发送邮件到项目维护者
 
 - 更改 CDN 服务来源: https://unpkg.com/
 

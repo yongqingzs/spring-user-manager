@@ -84,12 +84,12 @@
 								},
 								{
 									"key": "uuid",
-									"value": "15c0718c9c9f48db90891a88a952fb49",
+									"value": "f4193e44f0fd4bbb9d021d813538eb4c",
 									"type": "text"
 								},
 								{
 									"key": "code",
-									"value": "KFZEX",
+									"value": "upnbz",
 									"type": "text"
 								}
 							]
@@ -115,6 +115,25 @@
 		{
 			"name": "用户",
 			"item": [
+				{
+					"name": "用户页面",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "用户列表",
 					"request": {
@@ -337,6 +356,32 @@
 		{
 			"name": "部门",
 			"item": [
+				{
+					"name": "部门页面",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/departments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"departments"
+							],
+							"query": [
+								{
+									"key": "tree",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "部门列表",
 					"request": {

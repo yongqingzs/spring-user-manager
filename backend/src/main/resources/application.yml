@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: user-dept-system
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:user_dept_system}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${DB_USER:user_dept}
+    password: ${DB_PASSWORD:user_dept_pwd}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  devtools:
+    restart:
+      additional-paths:
+        - /app/backend
+  # Thymeleaf 配置
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+  # Spring Security 配置
+  security:
+    user:
+      name: user
+      password: password
+# MyBatis Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+# 日志配置
+logging:
+  config: classpath:logback-spring.xml
+# 系统配置
+system:
+  name: 望子成龙小学职工管理系统
+# JWT 配置
+jwt:
+  secret: aVeryLongAndSecureSecretKeyForHmacSha256Algorithm # 请替换为更安全的密钥
+  expiration: 86400 # 24小时
