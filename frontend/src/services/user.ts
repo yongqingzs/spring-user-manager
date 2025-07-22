@@ -8,6 +8,7 @@ export interface User {
   mobile?: string;
   status: number;
   enabled: boolean;
+  departmentCodes?: string[]; // 添加部门编码列表
   createdTime?: string;
   updatedTime?: string;
 }
@@ -18,13 +19,14 @@ export interface UserRequest {
   realname: string;
   email?: string;
   mobile?: string;
+  departmentCode?: string;
 }
 
 export interface UserListResponse {
   code: number;
   message: string;
   data: {
-    records: User[];
+    list: User[];
     total: number;
     size: number;
     current: number;
@@ -62,8 +64,5 @@ export const userService = {
     api.delete(`/users/${id}`),
 
   updateUserStatus: (id: number, enabled: boolean) => 
-    api.patch(`/users/${id}/status`, { enabled }),
-
-  resetPassword: (id: number) => 
-    api.patch(`/users/${id}/reset-password`),
+    api.patch(`/users/${id}/status?enabled=${enabled}`),
 };

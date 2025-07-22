@@ -22,7 +22,7 @@ export interface DepartmentListResponse {
   code: number;
   message: string;
   data: {
-    records: Department[];
+    list: Department[];
     total: number;
     size: number;
     current: number;

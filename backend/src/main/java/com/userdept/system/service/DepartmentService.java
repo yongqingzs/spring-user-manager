@@ -120,4 +120,10 @@ public interface DepartmentService {
      * @return 部门对象
      */
     Department getById(Long deptId);
+
+    /**
+     * 获取部门总数
+     * @return 部门总数
+     */
+    long count();
 }

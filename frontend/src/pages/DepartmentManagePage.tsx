@@ -11,9 +11,10 @@ import {
   Popconfirm,
   Tree,
   Row,
-  Col
+  Col,
+  Select
 } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { departmentService, Department, DepartmentRequest } from '../services/department';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -32,12 +33,15 @@ const DepartmentManagePage: React.FC = () => {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [form] = Form.useForm();
+  const [treeModalVisible, setTreeModalVisible] = useState(false);
 
   const fetchDepartments = async (page = 1, pageSize = 10, search = '') => {
     setLoading(true);
     try {
       const response = await departmentService.getDepartments(page, pageSize, search);
-      const { records, total, current, size } = response.data.data;
+      console.log('Raw department response data:', response.data.data);
+      const { list: records, total, current, size } = response.data.data;
+      console.log('Parsed department records:', records);
       setDepartments(records);
       setPagination({
         current,
@@ -72,12 +76,6 @@ const DepartmentManagePage: React.FC = () => {
   const handleSearch = (value: string) => {
     setSearchQuery(value);
     fetchDepartments(1, pagination.pageSize, value);
-  };
-
-  const handleAdd = () => {
-    setEditingDepartment(null);
-    form.resetFields();
-    setModalVisible(true);
   };
 
   const handleEdit = (department: Department) => {
@@ -121,6 +119,12 @@ const DepartmentManagePage: React.FC = () => {
     } catch (error) {
       message.error(editingDepartment ? '更新失败' : '创建失败');
     }
+  };
+
+  const handleAdd = () => {
+    setEditingDepartment(null);
+    form.resetFields();
+    setModalVisible(true);
   };
 
   const convertTreeData = (departments: Department[]): any[] => {
@@ -194,15 +198,7 @@ const DepartmentManagePage: React.FC = () => {
   return (
     <div>
       <Row gutter={16}>
-        <Col span={8}>
-          <Card title="部门组织架构" size="small">
-            <Tree
-              treeData={convertTreeData(departmentTree)}
-              defaultExpandAll
-            />
-          </Card>
-        </Col>
-        <Col span={16}>
+        <Col span={24}>
           <Card
             title="部门管理"
             extra={
@@ -211,7 +207,7 @@ const DepartmentManagePage: React.FC = () => {
               </Button>
             }
           >
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
               <Search
                 placeholder="搜索部门..."
                 allowClear
@@ -220,8 +216,12 @@ const DepartmentManagePage: React.FC = () => {
                 onSearch={handleSearch}
                 style={{ width: 300 }}
               />
+              <Space>
+                <Button type="primary" onClick={() => setTreeModalVisible(true)}>
+                  部门组织架构
+                </Button>
+              </Space>
             </div>
-
             <Table
               columns={columns}
               dataSource={departments}
@@ -265,7 +265,13 @@ const DepartmentManagePage: React.FC = () => {
             name="parentCode"
             label="上级部门编码"
           >
-            <Input placeholder="留空表示根部门" />
+            <Select placeholder="请选择上级部门" allowClear>
+              {departments.map(dept => (
+                <Select.Option key={dept.code} value={dept.code}>
+                  {dept.name} ({dept.code})
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item
@@ -275,6 +281,18 @@ const DepartmentManagePage: React.FC = () => {
             <Input.TextArea rows={4} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="部门组织架构"
+        open={treeModalVisible}
+        onCancel={() => setTreeModalVisible(false)}
+        footer={null}
+      >
+        <Tree
+          treeData={convertTreeData(departmentTree)}
+          defaultExpandAll
+        />
       </Modal>
     </div>
   );

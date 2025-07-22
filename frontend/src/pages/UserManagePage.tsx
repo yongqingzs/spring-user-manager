@@ -10,19 +10,24 @@ import {
   message, 
   Popconfirm,
   Switch,
-  Tag 
+  Select,
+  Checkbox
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { userService, User, UserRequest } from '../services/user';
+import { departmentService, Department } from '../services/department';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Search } = Input;
+const { Option } = Select;
 
 const UserManagePage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [changePassword, setChangePassword] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -35,7 +40,9 @@ const UserManagePage: React.FC = () => {
     setLoading(true);
     try {
       const response = await userService.getUsers(page, pageSize, query);
-      const { records, total, current, size } = response.data.data;
+      // console.log('Raw response data:', response.data.data);
+      const { list: records, total, current, size } = response.data.data;
+      console.log('Parsed user records:', records);
       setUsers(records);
       setPagination({
         current,
@@ -49,8 +56,18 @@ const UserManagePage: React.FC = () => {
     }
   };
 
+  const fetchDepartments = async () => {
+    try {
+      const response = await departmentService.getDepartments(1, 1000); // 获取所有部门
+      setDepartments(response.data.data.list);
+    } catch (error) {
+      message.error('获取部门列表失败');
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchDepartments();
   }, []);
 
   const handleTableChange = (paginationConfig: any) => {
@@ -64,13 +81,19 @@ const UserManagePage: React.FC = () => {
 
   const handleAdd = () => {
     setEditingUser(null);
+    setChangePassword(false);
     form.resetFields();
     setModalVisible(true);
   };
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
-    form.setFieldsValue(user);
+    setChangePassword(false);
+    form.setFieldsValue({
+      ...user,
+      departmentCodes: user.departmentCodes || [], // 确保 departmentCodes 是一个数组
+      password: '', // 清空密码字段
+    });
     setModalVisible(true);
   };
 
@@ -85,21 +108,14 @@ const UserManagePage: React.FC = () => {
   };
 
   const handleStatusChange = async (id: number, enabled: boolean) => {
+    console.log('Attempting to update user status:', id, enabled);
     try {
       await userService.updateUserStatus(id, enabled);
       message.success('状态更新成功');
       fetchUsers(pagination.current, pagination.pageSize, searchQuery);
     } catch (error) {
+      console.error('Error updating user status:', error);
       message.error('状态更新失败');
-    }
-  };
-
-  const handleResetPassword = async (id: number) => {
-    try {
-      await userService.resetPassword(id);
-      message.success('密码重置成功，新密码为: password');
-    } catch (error) {
-      message.error('密码重置失败');
     }
   };
 
@@ -111,9 +127,11 @@ const UserManagePage: React.FC = () => {
         realname: values.realname,
         email: values.email,
         mobile: values.mobile,
+        departmentCode: values.departmentCode,
       };
 
-      if (!editingUser) {
+      // 如果是新用户或者选择了修改密码，则包含密码
+      if (!editingUser || changePassword) {
         userRequest.password = values.password;
       }
 
@@ -130,6 +148,15 @@ const UserManagePage: React.FC = () => {
     } catch (error) {
       message.error(editingUser ? '更新失败' : '创建失败');
     }
+  };
+
+  const getDepartmentName = (departmentCodes?: string[]) => {
+    if (!departmentCodes || departmentCodes.length === 0) return '无';
+    const names = departmentCodes.map(code => {
+      const dept = departments.find(d => d.code === code);
+      return dept ? dept.name : code;
+    });
+    return names.join(', ');
   };
 
   const columns: ColumnsType<User> = [
@@ -160,6 +187,12 @@ const UserManagePage: React.FC = () => {
       key: 'mobile',
     },
     {
+      title: '部门',
+      dataIndex: 'departmentCodes', // 修改为 departmentCodes
+      key: 'departmentCodes',
+      render: (departmentCodes: string[]) => getDepartmentName(departmentCodes),
+    },
+    {
       title: '状态',
       dataIndex: 'enabled',
       key: 'enabled',
@@ -183,12 +216,6 @@ const UserManagePage: React.FC = () => {
             onClick={() => handleEdit(record)}
           >
             编辑
-          </Button>
-          <Button
-            type="link"
-            onClick={() => handleResetPassword(record.id)}
-          >
-            重置密码
           </Button>
           <Popconfirm
             title="确定要删除这个用户吗？"
@@ -260,16 +287,6 @@ const UserManagePage: React.FC = () => {
             <Input disabled={!!editingUser} />
           </Form.Item>
 
-          {!editingUser && (
-            <Form.Item
-              name="password"
-              label="密码"
-              rules={[{ required: true, message: '请输入密码' }]}
-            >
-              <Input.Password />
-            </Form.Item>
-          )}
-
           <Form.Item
             name="realname"
             label="真实姓名"
@@ -292,6 +309,40 @@ const UserManagePage: React.FC = () => {
           >
             <Input />
           </Form.Item>
+
+          <Form.Item
+            name="departmentCode"
+            label="所属部门"
+          >
+            <Select placeholder="请选择部门" allowClear>
+              {departments.map(dept => (
+                <Option key={dept.id} value={dept.code}>
+                  {dept.name} ({dept.code})
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {editingUser && (
+            <Form.Item>
+              <Checkbox
+                checked={changePassword}
+                onChange={(e) => setChangePassword(e.target.checked)}
+              >
+                修改密码
+              </Checkbox>
+            </Form.Item>
+          )}
+
+          {(!editingUser || changePassword) && (
+            <Form.Item
+              name="password"
+              label="密码"
+              rules={[{ required: !editingUser || changePassword, message: '请输入密码' }]}
+            >
+              <Input.Password placeholder={editingUser ? '输入新密码' : '请输入密码'} />
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>

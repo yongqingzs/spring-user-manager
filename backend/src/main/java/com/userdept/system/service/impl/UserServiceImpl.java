@@ -50,7 +50,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         
         queryWrapper.orderByDesc(User::getId);
         
-        return userMapper.selectPage(new Page<>(page, perPage), queryWrapper);
+        Page<User> userPage = userMapper.selectPage(new Page<>(page, perPage), queryWrapper);
+        
+        // 填充部门信息
+        return userPage;
     }
 
     @Override
@@ -81,6 +84,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         
         userMapper.insert(user);
         
+        // 处理用户部门关联
+        if (StringUtils.hasText(request.getDepartmentCode())) {
+            // 先删除现有的部门关联
+            userDepartmentMapper.delete(Wrappers.<UserDepartment>lambdaQuery()
+                    .eq(UserDepartment::getUsername, user.getUsername()));
+            
+            // 创建新的部门关联
+            UserDepartment userDepartment = new UserDepartment();
+            userDepartment.setUsername(user.getUsername());
+            userDepartment.setDepartmentCode(request.getDepartmentCode());
+            userDepartment.setCreator("system");
+            userDepartment.setCreatedTime(LocalDateTime.now());
+            userDepartmentMapper.insert(userDepartment);
+        }
+        
         return user;
     }
 
@@ -92,10 +110,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new IllegalArgumentException("用户不存在");
         }
 
-        BeanUtils.copyProperties(request, user);
+        BeanUtils.copyProperties(request, user, "password"); // 排除密码字段的自动复制
 
         if (StringUtils.hasText(request.getPassword())) {
-            user.setPassword(PasswordUtil.hashPassword(request.getPassword(), user.getSalt()));
+            String salt = PasswordUtil.generateSalt();
+            user.setSalt(salt);
+            user.setPassword(PasswordUtil.hashPassword(request.getPassword(), salt));
         }
 
         // 从上下文中获取当前用户
@@ -105,6 +125,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUpdatedTime(LocalDateTime.now());
 
         userMapper.updateById(user);
+
+        // 更新用户部门关联
+        // 1. 删除用户现有的部门关联
+        userDepartmentMapper.delete(Wrappers.<UserDepartment>lambdaQuery()
+                .eq(UserDepartment::getUsername, user.getUsername()));
+
+        // 2. 添加新的部门关联
+        if (StringUtils.hasText(request.getDepartmentCode())) {
+            UserDepartment userDepartment = new UserDepartment();
+            userDepartment.setUsername(user.getUsername());
+            userDepartment.setDepartmentCode(request.getDepartmentCode());
+            userDepartment.setCreator(currentUsername);
+            userDepartment.setCreatedTime(LocalDateTime.now());
+            userDepartmentMapper.insert(userDepartment);
+        }
 
         // 返回数据库中最新的完整 User 对象
         return userMapper.selectById(id);
@@ -139,25 +174,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public void resetPassword(Long id) {
-        User user = userMapper.selectById(id);
-        if (user == null) {
-            throw new IllegalArgumentException("用户不存在");
-        }
-        
-        String newPassword = "password"; // 默认密码
-        user.setPassword(PasswordUtil.hashPassword(newPassword, user.getSalt()));
-        user.setModifier("system");
-        user.setUpdatedTime(LocalDateTime.now());
-        
-        userMapper.updateById(user);
-    }
-
-    @Override
     public UserResponse convertToResponse(User user) {
         UserResponse response = new UserResponse();
         BeanUtils.copyProperties(user, response);
-        response.setEnabled(user.getStatus() == 1);
+        response.setEnabled(user.getStatus() != null && user.getStatus() == 1);
+
+        // 获取用户所属的部门编码列表
+        List<String> departmentCodes = userDepartmentMapper.selectList(
+                Wrappers.<UserDepartment>lambdaQuery()
+                        .eq(UserDepartment::getUsername, user.getUsername())
+        ).stream().map(UserDepartment::getDepartmentCode).collect(Collectors.toList());
+        response.setDepartmentCodes(departmentCodes);
+
         return response;
     }
 
@@ -169,7 +197,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    public List<String> getUserDepartmentCodes(String username) {
+        return userDepartmentMapper.selectList(
+                Wrappers.<UserDepartment>lambdaQuery()
+                        .eq(UserDepartment::getUsername, username)
+        ).stream().map(UserDepartment::getDepartmentCode).collect(Collectors.toList());
+    }
+
+    @Override
     public User getById(Long id) {
         return userMapper.selectById(id);
+    }
+
+    @Override
+    public long count() {
+        return userMapper.selectCount(null);
+    }
+
+    @Override
+    public long countActiveUsers() {
+        return userMapper.selectCount(Wrappers.<User>lambdaQuery().eq(User::getStatus, 1));
     }
 }

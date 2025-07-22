@@ -102,12 +102,4 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    /**
-     * 重置用户密码
-     */
-    @PostMapping("/{id}/reset-password")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(@PathVariable Long id) {
-        userService.resetPassword(id);
-        return ResponseEntity.ok(ApiResponse.success());
-    }
 }

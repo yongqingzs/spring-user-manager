@@ -289,4 +289,9 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         if (deptId == null) return null;
         return departmentMapper.selectById(deptId);
     }
+
+    @Override
+    public long count() {
+        return departmentMapper.selectCount(null);
+    }
 }

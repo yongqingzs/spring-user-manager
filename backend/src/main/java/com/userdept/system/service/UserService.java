@@ -24,11 +24,15 @@ public interface UserService {
 
     void updateUserStatus(Long id, boolean enabled);
 
-    void resetPassword(Long id);
-
     User getById(Long id);
 
     UserResponse convertToResponse(User user);
 
+    List<String> getUserDepartmentCodes(String username);
+
     List<UserResponse> convertToResponseList(List<User> users);
+
+    long count();
+
+    long countActiveUsers();
 }

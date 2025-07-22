@@ -3,6 +3,7 @@ package com.userdept.system.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class UserResponse {
@@ -13,6 +14,7 @@ public class UserResponse {
     private String mobile;
     private Integer sex;
     private Boolean enabled;
+    private List<String> departmentCodes; // 添加部门编码列表
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
 }

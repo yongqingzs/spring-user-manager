@@ -61,13 +61,32 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <div style={{ color: 'white', fontSize: '20px', marginRight: '40px' }}>
             用户部门管理系统
           </div>
-          <Menu
-            theme="dark"
-            mode="horizontal"
-            selectedKeys={[location.pathname]}
-            items={menuItems}
-            style={{ flex: 1, minWidth: 0 }}
-          />
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <Button
+              type="primary"
+              size="large"
+              icon={<HomeOutlined />}
+              onClick={() => navigate('/')}
+            >
+              首页
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              icon={<TeamOutlined />}
+              onClick={() => navigate('/users')}
+            >
+              用户管理
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              icon={<ApartmentOutlined />}
+              onClick={() => navigate('/departments')}
+            >
+              部门管理
+            </Button>
+          </div>
         </div>
         <div>
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">

@@ -29,4 +29,5 @@ public class UserRequest {
     private String idno;
     private Integer sex;
     private Boolean enabled;
+    private String departmentCode;
 }
