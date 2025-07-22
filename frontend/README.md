@@ -75,16 +75,12 @@ src/
 
 ```bash
 npm install
-# 或
-yarn install
 ```
 
 ### 启动开发服务器
 
 ```bash
 npm run dev
-# 或
-yarn dev
 ```
 
 开发服务器将运行在 http://localhost:3000
@@ -93,8 +89,6 @@ yarn dev
 
 ```bash
 npm run build
-# 或
-yarn build
 ```
 
 构建文件将输出到 `dist` 目录。
@@ -103,8 +97,6 @@ yarn build
 
 ```bash
 npm run preview
-# 或
-yarn preview
 ```
 
 ## 环境配置
