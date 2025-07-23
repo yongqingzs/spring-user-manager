@@ -3,25 +3,53 @@
 基于 Spring Boot + React 的前后端分离用户部门管理系统。
 
 ## 项目结构
-
-```
-├── backend/                    # 后端 Spring Boot 项目
-│   ├── src/main/java/         # Java 源代码
-│   ├── src/main/resources/    # 配置文件和静态资源
-│   ├── pom.xml               # Maven 依赖配置
-│   └── Dockerfile            # 后端 Docker 配置
-├── frontend/                  # 原始前端模板文件（Thymeleaf）
-├── frontend-react/           # 新的 React 前端项目
-│   ├── src/                  # React 源代码
-│   ├── public/               # 静态资源
-│   ├── package.json          # npm 依赖配置
-│   └── vite.config.ts        # Vite 构建配置
-├── nginx/                    # Nginx 配置文件
-├── doc/                      # 文档目录
-│   ├── backend-api.md        # 后端 API 说明文档
-│   └── *.postman_collection.json # Postman 测试集合
-├── docker-compose.yaml       # Docker Compose 配置
-└── README.md                # 项目说明文档
+```bash
+├── backend/                                 # 后端 Spring Boot 项目
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   └── com/
+│   │   │   │       └── userdept/
+│   │   │   │           └── system/
+│   │   │   │               ├── aop/         # 面向切面编程相关（如日志、权限等）
+│   │   │   │               ├── config/      # 配置类（如安全、MyBatis、Redis等）
+│   │   │   │               ├── controller/  # 控制器（接口入口）
+│   │   │   │               ├── dto/         # 数据传输对象（接口参数、返回值）
+│   │   │   │               ├── entity/      # 实体类（数据库表映射）
+│   │   │   │               ├── exception/   # 异常处理相关
+│   │   │   │               ├── mapper/      # MyBatis 映射接口
+│   │   │   │               ├── service/     # 业务服务层
+│   │   │   │               ├── utils/       # 工具类与辅助方法
+│   │   │   │               └── vo/          # 视图对象（前端展示用）
+│   │   │   └── resources/
+│   │   │       ├── application.yml           # 后端主配置文件
+│   │   │       ├── logback-spring.xml        # 日志配置
+│   │   │       └── db/migration/             # 数据库迁移脚本（Flyway）
+│   ├── pom.xml                               # Maven 依赖配置
+│   ├── Dockerfile                            # 后端生产环境 Docker 配置
+│   └── Dockerfile.dev                        # 后端开发环境 Docker 配置
+├── frontend/                                 # 前端 React + Vite 项目
+│   ├── src/                                  # 前端源码目录
+│   │   ├── components/                       # 复用的UI组件
+│   │   ├── pages/                            # 路由页面（对应具体业务模块）
+│   │   ├── router/                           # 路由配置与守卫
+│   │   ├── services/                         # API接口与数据请求
+│   │   ├── store/                            # 状态管理（如用户认证等）
+│   │   ├── App.tsx                           # 应用主入口组件
+│   │   └── main.tsx                          # 应用启动入口
+│   ├── public/                                # 公共资源（favicon、静态文件等）
+│   ├── Dockerfile                             # 前端生产环境 Docker 配置
+│   ├── Dockerfile.dev                         # 前端开发环境 Docker 配置
+│   ├── package.json                           # 前端依赖配置
+│   ├── vite.config.ts                         # Vite 配置文件
+├── nginx/                                     # Nginx 配置文件
+│   ├── nginx.conf                             # 主配置
+│   ├── html/                                  # 错误页等静态页面
+│   └── logs/                                  # Nginx 日志
+├── doc/                                       # 文档目录
+│   └── *.postman_collection.json              # Postman 测试集合
+├── docker-compose.yaml                        # Docker Compose 配置
+└── README.md                                  # 项目说明文档
 ```
 
 ## 技术栈
@@ -266,12 +294,7 @@ npm test  # 运行单元测试（需要添加测试）
 - 基础的用户和部门管理功能
 - Session 认证方式
 
-## 技术支持
-
-如有问题，请通过以下方式联系：
-- 创建 GitHub Issue
-- 发送邮件到项目维护者
-
+## 实践记录
 - 更改 CDN 服务来源: https://unpkg.com/
 
 - 额外注解实践
@@ -284,109 +307,6 @@ npm test  # 运行单元测试（需要添加测试）
 ```txt
 Nginx 处理静态资源，发送给前端
 Nginx 将 html 相关、 API 接口代理转发给 Web 服务（ Thymeleaf 引擎渲染）
-```
-
-## 组件
-- 数据传输（无业务逻辑）
-```txt
-DTO（Data Transfer Object，数据传输对象）
-用于在不同层（如前端和后端、服务与服务之间）传递数据，主要目的是封装数据，减少多次远程调用的次数。DTO 通常用于前后端或服务间的数据交互。
-
-VO（View Object，视图对象）
-用于展示层，封装页面或接口需要展示的数据。VO 通常是后端返回给前端的数据结构，更贴合前端展示需求。
-```
-
-## 项目结构
-```bash
-src/
-├── main/
-│   ├── java/
-│   │   └── com/
-│   │       └── userdept/
-│   │           └── system/
-│   │               ├── UserDeptSystemApplication.java      # 应用入口
-│   │               ├── config/                             # 配置类
-│   │               │   ├── GlobalModelAttributeAdvice.java
-│   │               │   ├── MybatisPlusConfig.java
-│   │               │   ├── SecurityConfig.java
-│   │               │   └── SystemInitializer.java
-│   │               ├── controller/                         # 控制器
-│   │               │   ├── AuthController.java
-│   │               │   ├── CaptchaController.java
-│   │               │   ├── DepartmentController.java
-│   │               │   ├── IndexController.java
-│   │               │   └── UserController.java
-│   │               ├── dto/                                # 数据传输对象
-│   │               │   ├── DepartmentDTO.java
-│   │               │   └── UserDTO.java
-│   │               ├── entity/                             # 实体类
-│   │               │   ├── Department.java
-│   │               │   ├── User.java
-│   │               │   └── UserDepartment.java
-│   │               ├── exception/                          # 异常处理
-│   │               │   └── GlobalExceptionHandler.java
-│   │               ├── mapper/                             # MyBatis-Plus映射器
-│   │               │   ├── DepartmentMapper.java
-│   │               │   ├── UserDepartmentMapper.java
-│   │               │   └── UserMapper.java
-│   │               ├── service/                            # 服务层接口
-│   │               │   ├── AuthService.java
-│   │               │   ├── CaptchaService.java
-│   │               │   ├── DepartmentService.java
-│   │               │   └── UserService.java
-│   │               ├── service/impl/                       # 服务实现
-│   │               │   ├── AuthServiceImpl.java
-│   │               │   ├── CaptchaServiceImpl.java
-│   │               │   ├── DepartmentServiceImpl.java
-│   │               │   ├── UserDetailsServiceImpl.java
-│   │               │   └── UserServiceImpl.java
-│   │               ├── utils/                              # 工具类
-│   │               │   ├── CaptchaImageUtil.java
-│   │               │   └── PasswordUtil.java
-│   │               ├── vo/                                 # 视图对象
-│   │               │   ├── PageVO.java
-│   │               │   ├── ResultVO.java
-│   │               │   └── UserDepartmentVO.java
-│   └── resources/
-│       ├── application.yml                                 # 应用配置
-│       ├── db/
-│       │   └── migration/
-│       │       └── V1__init.sql
-│       ├── logback-spring.xml
-│       ├── mapper/                                         # MyBatis XML映射文件
-│       ├── static/                                         # 静态资源
-│       │   ├── css/
-│       │   │   └── style.css
-│       │   ├── favicon/
-│       │   ├── img/
-│       │   └── js/
-│       │       ├── department-add.js
-│       │       ├── department-edit.js
-│       │       ├── department.js
-│       │       ├── login.js
-│       │       ├── main.js
-│       │       ├── user-add.js
-│       │       ├── user-edit.js
-│       │       └── user.js
-│       └── templates/                                      # Thymeleaf模板
-│           ├── base.html
-│           ├── index.html
-│           ├── auth/
-│           │   └── login.html
-│           ├── department/
-│           │   ├── add.html
-│           │   ├── edit.html
-│           │   └── index.html
-│           └── user/
-│               ├── add.html
-│               ├── edit.html
-│               └── index.html
-├── nginx/                                                  # Nginx 配置文件
-│   ├── nginx.conf                                          
-│   └── logs/                                               
-├── doc/                                                    # 文档目录
-│   └── 望子成龙小学职工管理系统.postman_collection.json      # Postman 接口集合
-└── test/                                                   # 测试代码
 ```
 
 ## 常用命令行
